@@ -1,0 +1,5 @@
+fastapi[standard]>=0.135.0
+httpx>=0.28.0,<0.29.0
+APScheduler>=3.11.0,<4.0.0
+gunicorn>=23.0.0
+itsdangerous>=2.1.0

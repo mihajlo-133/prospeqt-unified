@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "camp-001",
+      "name": "Test Campaign Active",
+      "status": 1,
+      "sequences": [
+        {
+          "steps": [
+            {
+              "variants": [
+                {
+                  "subject": "Hi {{firstName}}, quick question about {{companyName}}",
+                  "body": "Hey {{firstName}},\n\nI noticed {{companyName}} in {{cityName}} is growing fast..."
+                }
+              ]
+            },
+            {
+              "variants": [
+                {
+                  "subject": "Re: {{companyName}}",
+                  "body": "{{firstName}}, wanted to follow up on my last email about {{companyName}}.\n\n{{accountSignature}}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "camp-002",
+      "name": "Test Campaign Draft",
+      "status": 0,
+      "sequences": [
+        {
+          "steps": [
+            {
+              "variants": [
+                {
+                  "subject": "{{firstName}} — saw your role at {{companyName}}",
+                  "body": "Hi {{firstName}},\n\nI saw your role at {{companyName}} and thought {{RANDOM |option1|option2}} might interest you."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "camp-003",
+      "name": "Test Campaign Paused",
+      "status": 2,
+      "sequences": []
+    },
+    {
+      "id": "camp-004",
+      "name": "Test Campaign Completed",
+      "status": 3,
+      "sequences": []
+    }
+  ],
+  "next_starting_after": null
+}

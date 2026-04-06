@@ -1,0 +1,64 @@
+{
+  "campaign": {
+    "id": "qa-camp-001",
+    "name": "QA Test Campaign",
+    "status": 1,
+    "sequences": [
+      {
+        "steps": [
+          {
+            "variants": [
+              {
+                "subject": "Hi {{firstName}}, question about {{companyName}}",
+                "body": "Hey {{firstName}},\n\nI noticed {{companyName}} in {{cityName}} is doing interesting things.\n\n{{RANDOM | Option A | Option B}}\n\n{{accountSignature}}"
+              }
+            ]
+          },
+          {
+            "variants": [
+              {
+                "subject": "Follow up — {{companyName}}",
+                "body": "{{firstName}}, wanted to follow up.\n\n{{ spacedVar }} is also something we track.\n\n{{accountSignature}}"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "leads": [
+    {
+      "id": "qa-lead-001",
+      "email": "clean@example.com",
+      "status": 1,
+      "payload": {
+        "firstName": "Alice",
+        "companyName": "Acme Corp",
+        "cityName": "New York",
+        "spacedVar": "value"
+      }
+    },
+    {
+      "id": "qa-lead-002",
+      "email": "broken-city@example.com",
+      "status": 1,
+      "payload": {
+        "firstName": "Bob",
+        "companyName": "Beta Inc",
+        "cityName": "",
+        "spacedVar": "value"
+      }
+    },
+    {
+      "id": "qa-lead-003",
+      "email": "broken-name@example.com",
+      "status": 1,
+      "payload": {
+        "firstName": "NO",
+        "companyName": "Gamma LLC",
+        "cityName": "London",
+        "spacedVar": "value"
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "lead-001",
+      "email": "john@acme.com",
+      "status": 1,
+      "payload": {
+        "firstName": "John",
+        "companyName": "Acme Corp",
+        "cityName": "New York",
+        "companyRevenue": "$50M"
+      }
+    },
+    {
+      "id": "lead-002",
+      "email": "jane@broken.com",
+      "status": 1,
+      "payload": {
+        "firstName": "Jane",
+        "companyName": "",
+        "cityName": "NO",
+        "companyRevenue": null
+      }
+    },
+    {
+      "id": "lead-003",
+      "email": "bob@bounced.com",
+      "status": -1,
+      "payload": {
+        "firstName": "Bob",
+        "companyName": "Bounced Inc"
+      }
+    },
+    {
+      "id": "lead-004",
+      "email": "alice@contacted.com",
+      "status": 3,
+      "payload": {
+        "firstName": "Alice",
+        "companyName": "Contacted LLC"
+      }
+    }
+  ],
+  "next_starting_after": null
+}

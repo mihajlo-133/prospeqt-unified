@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Access — Email QA{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 64px);
+    padding: 24px;
+  }
+
+  .login-card {
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    padding: 32px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: var(--sh-md);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .login-logo .logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #FFEAA9 0%, #FFD348 35%, #FF9B1C 65%, #FF4A00 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-logo .logo-icon svg { width: 18px; height: 18px; }
+
+  .login-heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tx1);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -.02em;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tx2);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--tx1);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .form-input:focus {
+    border-color: var(--blue);
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    box-shadow: 0 1px 3px rgba(37,99,235,.3);
+  }
+
+  .btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .login-error {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--red);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
+      </span>
+      <h1 class="login-heading">Admin Access</h1>
+    </div>
+    <form method="POST" action="/admin/login">
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="current-password"
+          autofocus
+          required
+        >
+      </div>
+      <button class="btn-primary" type="submit">Sign In</button>
+      {% if error %}
+      <p class="login-error">{{ error }}</p>
+      {% endif %}
+    </form>
+  </div>
+</div>
+{% endblock %}

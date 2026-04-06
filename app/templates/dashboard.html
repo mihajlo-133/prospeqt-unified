@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Email QA — Overview{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--tx1); font-family: 'Inter', sans-serif; letter-spacing: -.02em; }
+  .page-count { font-size: 14px; color: var(--tx2); }
+
+  /* Workspace card grid — 3 col desktop, 2 col tablet, 1 col mobile per UI-SPEC */
+  .ws-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+  @media (max-width: 1023px) {
+    .ws-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 767px) {
+    .ws-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Workspace card */
+  .ws-card {
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sh);
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: background .12s, border-color .15s;
+    position: relative;
+  }
+  .ws-card:hover { background: var(--bg-hov); }
+  .ws-card.health-green { box-shadow: inset 4px 0 0 var(--green), var(--sh); }
+  .ws-card.health-yellow { box-shadow: inset 4px 0 0 var(--amber), var(--sh); }
+  .ws-card.health-red { box-shadow: inset 4px 0 0 var(--red), var(--sh); }
+  .ws-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ws-card-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -.02em;
+  }
+  .ws-card-meta { font-size: 13px; color: var(--tx2); line-height: 1.4; }
+  .ws-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .ws-card .scan-btn-secondary { position: relative; z-index: 2; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--tx2);
+  }
+  .empty-state h2 { font-size: 18px; font-weight: 600; color: var(--tx1); margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; margin-bottom: 16px; }
+  .empty-state a { color: var(--blue); text-decoration: none; }
+  .empty-state a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  <div class="page-header">
+    <h1 class="page-title">Workspaces</h1>
+    <span class="page-count">{{ ws_count }} workspace{{ 's' if ws_count != 1 else '' }}</span>
+  </div>
+
+  {% if workspaces %}
+  <div class="chips-wrap">
+    <div class="chips">
+      {% if red_count > 0 %}
+      <span class="chip c-red"><span class="dot dot-red"></span><strong>{{ red_count }}</strong>&nbsp;action needed</span>
+      {% endif %}
+      {% if amber_count > 0 %}
+      <span class="chip c-amber"><span class="dot dot-amber"></span><strong>{{ amber_count }}</strong>&nbsp;watch</span>
+      {% endif %}
+      {% if green_count > 0 %}
+      <span class="chip c-green"><span class="dot dot-green"></span><strong>{{ green_count }}</strong>&nbsp;clean</span>
+      {% endif %}
+      <span class="chip c-blue"><strong>{{ total_campaigns }}</strong>&nbsp;total campaigns</span>
+      {% if total_broken > 0 %}
+      <span class="chip c-red"><strong>{{ total_broken }}</strong>&nbsp;broken leads</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% include "_workspace_grid.html" %}
+</div>
+{% endblock %}

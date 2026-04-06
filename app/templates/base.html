@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Email QA{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAHlBMVEVMaXEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABKvP01AAAACXRSTlMA46EiQoTCEGeetEsFAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWElEQVR42u2Xyw7EIAhFS1Us///Dk3bqGywyq0l6t+oJeIngtk3lcXebXW4nIjisx2MAumRE+Pv4KUMeDqlRcIvRU6+lPA4gRqANwiMJUl3FZZ0kCGrrRMShts6Qh0NSSbCUsW4pjwNoQYOlHmlR3VVI5qGTIgtRkQJ46W6Qu8cwVE0UwrvATQLcxjrJpj5yOZYN2RaXN6KXMkxxxX3Pq1VQ342M0Xd4CXzWfA0oEbvA3HAq1Ay+cmoB5ZgTi93HpuZ7gPbRyb4OAN2jU66TATw/OnXNswDC+fmmUlgAvIAX8AL+AdD272VA36NWAUPzWwMw/XsFELnurQcIo5caII1eBQBTgDi8VENjFeIIkMYkz484SsDYBtNooAOw/fseDRSAfvrIQQQVAPx0VH8CAD99lDxwDkDDL1CRvBJg/UFOrdMD0P4FfrJOAQBz9F/ATx/48zmYLn8A5oQ0r5uSKKoAAAAASUVORK5CYII=">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+  <script>htmx.config.timeout = 180000;</script>
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-alt: #F8FAFC;
+      --bg-el: #FFFFFF;
+      --bg-hov: #F8FAFC;
+      --bg-sel: #EFF6FF;
+      --bd: #E2E8F0;
+      --bd-s: #CBD5E1;
+      --tx1: #0F172A;
+      --tx2: #475569;
+      --tx3: #94A3B8;
+      --blue: #2563EB;
+      --blue-h: #1D4ED8;
+      --blue-bg: rgba(37,99,235,.1);
+      --green: #22C55E;
+      --green-text: #16A34A;
+      --amber: #F59E0B;
+      --amber-text: #D97706;
+      --red: #EF4444;
+      --red-text: #DC2626;
+      --sh: 0 1px 2px rgba(0,0,0,.05);
+      --sh-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+      --sh-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+      --radius: 8px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: var(--tx1);
+      background: var(--bg);
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Topbar / Nav */
+    .topbar {
+      height: 64px;
+      background: var(--bg-el);
+      border-bottom: 1px solid var(--bd);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--tx1);
+      letter-spacing: -.03em;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #FFEAA9 0%, #FFD348 35%, #FF9B1C 65%, #FF4A00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon svg { width: 16px; height: 16px; }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Gear icon button */
+    .gear-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--bg-el);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--tx2);
+      transition: background var(--transition), border-color var(--transition);
+      padding: 4px;
+    }
+
+    .gear-btn:hover {
+      background: var(--bg-hov);
+      border-color: var(--bd-s);
+    }
+
+    .gear-btn:hover svg {
+      color: var(--tx1);
+    }
+
+    .gear-btn svg {
+      width: 18px;
+      height: 18px;
+      color: var(--tx2);
+      flex-shrink: 0;
+    }
+
+    /* Page content */
+    .page-content {
+      min-height: calc(100vh - 64px);
+    }
+
+    /* Toast container */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      max-width: 320px;
+      pointer-events: auto;
+      animation: toast-in 0.2s ease;
+    }
+
+    .toast-success {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green-text);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .toast-error {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--red-text);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scan button — Primary (topbar) */
+    .scan-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 1px 3px rgba(37,99,235,.3);
+    }
+    .scan-btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+    .scan-btn-primary[disabled] { pointer-events: none; opacity: 0.6; }
+
+    /* Scan button — Secondary (per-workspace, per-campaign) per UI-SPEC */
+    .scan-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-el);
+      color: var(--tx1);
+      font-size: 13px;
+      font-weight: 400;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      min-height: 44px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .scan-btn-secondary:hover { background: var(--bg-hov); border-color: var(--bd-s); }
+    .scan-btn-secondary[disabled] { pointer-events: none; opacity: 0.6; }
+
+    /* Spinner animation */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { animation: spin 0.8s linear infinite; }
+
+    /* HTMX indicator: hidden by default, shown during request */
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator,
+    .htmx-request.htmx-indicator { display: inline-flex; }
+
+    /* Health dot per UI-SPEC */
+    .health-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .health-dot--green { background: var(--green); }
+    .health-dot--yellow { background: var(--amber); }
+    .health-dot--red { background: var(--red); }
+    .health-dot--gray { background: var(--tx3); }
+
+    /* Breadcrumb bar per UI-SPEC */
+    .breadcrumb-bar {
+      padding: 16px 24px;
+      background: var(--bg-el);
+      border-bottom: 1px solid var(--bd);
+      font-size: 13px;
+      color: var(--tx3);
+    }
+    .breadcrumb-bar a { color: var(--blue); text-decoration: none; }
+    .breadcrumb-bar a:hover { text-decoration: underline; }
+    .breadcrumb-sep { color: var(--tx3); margin: 0 6px; }
+    .breadcrumb-current { color: var(--tx1); }
+
+    /* Status badge pills */
+    .status-badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+    .status-badge--active {
+      background: rgba(34,197,94,0.12);
+      color: var(--green-text);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+    .status-badge--draft {
+      background: rgba(107,107,107,0.1);
+      color: var(--tx2);
+      border: 1px solid var(--bd);
+    }
+
+    /* Health pills (replaces dots on cards) */
+    .pill { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+    .pill-g { background: rgba(34,197,94,.08); color: var(--green-text); border: 1px solid rgba(34,197,94,.2); }
+    .pill-a { background: rgba(245,158,11,.08); color: var(--amber-text); border: 1px solid rgba(245,158,11,.2); }
+    .pill-r { background: rgba(239,68,68,.08); color: var(--red-text); border: 1px solid rgba(239,68,68,.2); }
+    .pill-m { background: var(--bg-el); color: var(--tx3); border: 1px solid var(--bd); }
+
+    /* Summary chips (overview page) */
+    .chips-wrap { padding: 20px 0 16px; }
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-el); font-size: 12px; color: var(--tx2); box-shadow: var(--sh); font-family: 'Inter', sans-serif; }
+    .chip strong { color: var(--tx1); font-weight: 600; }
+    .chip.c-red { border-color: rgba(239,68,68,.2); background: rgba(239,68,68,.04); color: var(--red-text); }
+    .chip.c-amber { border-color: rgba(245,158,11,.2); background: rgba(245,158,11,.04); color: var(--amber-text); }
+    .chip.c-green { border-color: rgba(34,197,94,.2); background: rgba(34,197,94,.04); color: var(--green-text); }
+    .chip.c-blue { border-color: var(--blue-bg); background: var(--blue-bg); color: var(--blue); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot-red { background: var(--red); }
+    .dot-amber { background: var(--amber); }
+    .dot-green { background: var(--green); }
+    .dot-muted { background: var(--tx3); }
+
+    /* Scanning card state */
+    .ws-card.scanning {
+      border-color: var(--blue);
+      box-shadow: inset 4px 0 0 var(--blue), var(--sh);
+      background: linear-gradient(90deg, var(--bg-el) 0%, rgba(37,99,235,.03) 50%, var(--bg-el) 100%);
+      background-size: 200% 100%;
+      animation: scan-shimmer 2s ease-in-out infinite;
+    }
+    @keyframes scan-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .scan-card-spinner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+    .pill-scanning {
+      background: var(--blue-bg, rgba(39,86,247,.08));
+      color: var(--blue);
+      border: 1px solid rgba(39,86,247,.15);
+    }
+
+    /* Scan progress banner */
+    .scan-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      border-radius: var(--radius);
+      background: var(--blue-bg, rgba(39,86,247,.08));
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(39,86,247,.15);
+    }
+
+    /* Page shell per UI-SPEC */
+    .page-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Utility: meta/label text */
+    .text-meta { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tx3); font-weight: 600; font-family: 'Inter', sans-serif; }
+
+    /* Freshness indicator */
+    .freshness { font-size: 13px; }
+    .freshness--green { color: var(--green-text); }
+    .freshness--amber { color: var(--amber-text); }
+    .freshness--gray { color: var(--tx3); }
+  </style>
+  {% block extra_styles %}{% endblock %}
+</head>
+<body>
+  <nav class="topbar">
+    <a href="/" class="logo">
+      <span class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
+      </span>
+      Email QA
+    </a>
+    <div class="topbar-actions">
+      <button class="scan-btn-primary"
+              hx-post="/api/scan/all"
+              hx-target="body"
+              hx-swap="none"
+              hx-indicator=".scan-all-spinner">
+        <span class="scan-all-spinner htmx-indicator">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+        </span>
+        <span class="scan-btn-label">Scan All</span>
+      </button>
+      <a href="/admin" class="gear-btn" aria-label="Admin settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    function showToast(message, type) {
+      type = type || 'success';
+      var container = document.getElementById('toast-container');
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.2s';
+        setTimeout(function() {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 200);
+      }, 3000);
+    }
+
+    document.body.addEventListener('htmx:responseError', function(evt) {
+      showToast('Something went wrong. Refresh the page or try the scan again.', 'error');
+    });
+
+    // Show toast when scan buttons are clicked
+    document.body.addEventListener('htmx:beforeRequest', function(evt) {
+      var path = evt.detail.pathInfo && evt.detail.pathInfo.requestPath || '';
+      if (path.indexOf('/api/scan') === 0) {
+        showToast('Scan started — results will appear shortly...', 'success');
+      }
+    });
+
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %}Email QA — {{ campaign_name }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .page-header-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--tx1); font-family: 'Inter', sans-serif; letter-spacing: -.02em; }
+  .campaign-meta { font-size: 14px; color: var(--tx2); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+  /* Variable summary block — KPI card style */
+  .var-card {
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sh);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .var-card-title { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tx3); font-weight: 600; font-family: 'Inter', sans-serif; margin-bottom: 16px; }
+  .var-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bd);
+  }
+  .var-row:last-child { border-bottom: none; }
+  .var-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--tx1);
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .var-count { font-size: 13px; color: var(--tx2); white-space: nowrap; min-width: 110px; font-family: 'Inter', sans-serif; }
+  .var-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--bd);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .var-bar-fill { height: 100%; background: var(--red); border-radius: 8px; }
+
+  /* Broken leads table */
+  .table-card {
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sh);
+    overflow: hidden;
+  }
+  .table-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .table-card-title { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tx3); font-weight: 600; font-family: 'Inter', sans-serif; }
+  .lead-count-badge {
+    font-size: 13px;
+    background: rgba(239,68,68,0.1);
+    color: var(--red-text);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .leads-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  .leads-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--tx3);
+    border-bottom: 1px solid var(--bd);
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-alt);
+    white-space: nowrap;
+  }
+  .leads-table td {
+    padding: 0 16px;
+    font-size: 13px;
+    color: var(--tx1);
+    border-bottom: 1px solid var(--bd);
+    vertical-align: top;
+    height: 52px;
+  }
+  .leads-table td:first-child { font-family: 'Inter', sans-serif; font-size: 12px; }
+  .leads-table tr:last-child td { border-bottom: none; }
+  .leads-table tr:hover td { background: var(--bg-hov); }
+
+  .broken-var-list { display: flex; flex-direction: column; gap: 4px; }
+  .broken-var-item { font-size: 13px; }
+  .broken-var-name { color: var(--tx3); font-family: 'Inter', sans-serif; font-size: 12px; }
+  .broken-var-value { color: var(--red); font-weight: 600; font-family: 'Inter', sans-serif; font-size: 12px; }
+
+  /* Pagination per UI-SPEC */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--bd);
+  }
+  .pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--tx1);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .pagination a:hover { background: var(--bg-hov); border-color: var(--bd); }
+  .pagination .pg-active {
+    background: var(--blue);
+    color: #fff;
+    pointer-events: none;
+  }
+  .pagination .pg-disabled { color: var(--tx3); pointer-events: none; }
+  .pagination-label { font-size: 13px; color: var(--tx2); padding: 0 12px; }
+
+  /* Empty/clean state */
+  .clean-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--tx2);
+  }
+  .clean-state h2 { font-size: 18px; font-weight: 600; color: var(--green-text); margin-bottom: 8px; }
+  .clean-state p { font-size: 14px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--tx2);
+  }
+  .empty-state h2 { font-size: 18px; font-weight: 600; color: var(--tx1); margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; }
+
+  /* Responsive: hide lead status on mobile */
+  @media (max-width: 767px) {
+    .col-lead-status { display: none; }
+    .leads-table th, .leads-table td { padding: 8px 12px; }
+    .var-row { flex-wrap: wrap; }
+    .var-bar-bg { width: 100%; flex: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-bar">
+  <a href="/">All Workspaces</a>
+  <span class="breadcrumb-sep">&gt;</span>
+  <a href="/ws/{{ ws_name }}">{{ ws_name }}</a>
+  <span class="breadcrumb-sep">&gt;</span>
+  <span class="breadcrumb-current">{{ campaign_name }}</span>
+</div>
+
+<div class="page-shell">
+  <div class="page-header-row">
+    <h1 class="page-title">{{ campaign_name }}</h1>
+    <span class="status-badge status-badge--{{ campaign_status }}">{{ campaign_status|capitalize }}</span>
+    <button class="scan-btn-secondary"
+            hx-post="/api/scan/ws/{{ ws_name }}/campaign/{{ campaign_id }}"
+            hx-target="#campaign-results"
+            hx-swap="outerHTML">
+      Scan Campaign
+    </button>
+  </div>
+
+  {% if not not_scanned %}
+  <div class="campaign-meta">
+    {% if health == 'green' %}
+    <span class="pill pill-g">Clean</span>
+    {% elif health == 'yellow' %}
+    <span class="pill pill-a">Watch</span>
+    {% elif health == 'red' %}
+    <span class="pill pill-r">Action</span>
+    {% else %}
+    <span class="pill pill-m">Not Scanned</span>
+    {% endif %}
+    <span style="font-size:13px;">{{ total_leads }} total leads</span>
+    {% if broken_count > 0 %}
+    <span style="font-size:24px;font-weight:700;letter-spacing:-.03em;color:var(--red);">{{ broken_count }}</span>
+    <span>broken ({{ pct }})</span>
+    {% endif %}
+    <span class="freshness freshness--{{ freshness_cls }}" style="font-size:11px;">{{ freshness_txt }}</span>
+  </div>
+  {% endif %}
+
+  <div id="campaign-results">
+    {% if not_scanned %}
+    <div class="empty-state">
+      <h2>Not yet scanned</h2>
+      <p>Click "Scan Campaign" to run a QA check on this campaign.</p>
+    </div>
+
+    {% elif broken_count == 0 %}
+    <div class="clean-state">
+      <h2>All clear</h2>
+      <p>No broken variables found in this campaign. Every lead has complete variable data.</p>
+    </div>
+
+    {% else %}
+    <!-- Variable summary block per D-11, D-12 -->
+    {% if variables %}
+    <div class="var-card">
+      <div class="var-card-title">Variable Issues</div>
+      {% for var in variables %}
+      <div class="var-row">
+        <span class="var-name">{{ var.name }}</span>
+        <span class="var-count">{{ var.count }} lead{{ 's' if var.count != 1 else '' }} broken</span>
+        <div class="var-bar-bg">
+          <div class="var-bar-fill" style="width: {{ var.pct|round(1) }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Broken leads table per D-13, D-14, D-15 -->
+    <div id="broken-leads-table">
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title">Broken Leads</span>
+          <span class="lead-count-badge">{{ total_broken_count }}</span>
+        </div>
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Broken Variables</th>
+              <th class="col-lead-status">Lead Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lead in page_leads %}
+            <tr>
+              <td>{{ lead.email }}</td>
+              <td>
+                <div class="broken-var-list">
+                  {% for var_name, var_value in lead.broken_vars.items() %}
+                  <div class="broken-var-item">
+                    <span class="broken-var-name">{{ var_name }}:</span>
+                    <span class="broken-var-value">{{ var_value }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="col-lead-status">{{ lead.lead_status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if total_pages > 1 %}
+        <div class="pagination">
+          {% if page > 1 %}
+          <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page - 1 }}"
+             hx-target="#broken-leads-table"
+             hx-swap="outerHTML">&larr;</a>
+          {% else %}
+          <span class="pg-disabled">&larr;</span>
+          {% endif %}
+
+          {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <span class="pg-active">{{ p }}</span>
+            {% else %}
+            <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ p }}"
+               hx-target="#broken-leads-table"
+               hx-swap="outerHTML">{{ p }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if page < total_pages %}
+          <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page + 1 }}"
+             hx-target="#broken-leads-table"
+             hx-swap="outerHTML">&rarr;</a>
+          {% else %}
+          <span class="pg-disabled">&rarr;</span>
+          {% endif %}
+
+          <span class="pagination-label">Page {{ page }} of {{ total_pages }} &mdash; {{ total_broken_count }} leads</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
