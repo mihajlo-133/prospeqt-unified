@@ -11,9 +11,9 @@
      ============================================================ */
   .mon-countdown {
     position: sticky;
-    top: 64px;        /* flush under the 64px topbar */
+    top: 0;           /* flush at top — sidebar layout, no topbar */
     left: 0;
-    z-index: 99;      /* just below topbar (z-index: 100) */
+    z-index: 99;
     height: 2px;
     width: 100%;
     background: transparent;
@@ -38,9 +38,29 @@
     width: 100%;
   }
 
-  /* Mobile: topbar wraps to ~96px — adjust sticky offset */
+  /* Monitoring page header */
+  .mon-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 24px 0;
+    flex-wrap: wrap;
+  }
+  .mon-page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--tx1);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -.02em;
+  }
+  .mon-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   @media (max-width: 639px) {
-    .mon-countdown { top: 96px; }
+    .mon-page-header { padding: 12px 16px 0; }
   }
 
   /* Summary chip bar — horizontal scroll on mobile */
@@ -479,36 +499,32 @@
 </style>
 {% endblock %}
 
-{% block topbar_right %}
-  <span class="freshness freshness--gray" id="updated-at" style="margin-right: 4px;">
-    Updated {{ updated_at }}
-  </span>
-  <button class="scan-btn-primary"
-          hx-post="/api/monitoring/refresh"
-          hx-target="#cards-partial"
-          hx-swap="innerHTML"
-          hx-include="#sort-select"
-          hx-indicator=".refresh-spinner">
-    <span class="refresh-spinner htmx-indicator">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-      </svg>
-    </span>
-    <span>Refresh</span>
-  </button>
-  <a href="/admin" class="gear-btn" aria-label="Admin settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-    </svg>
-  </a>
-{% endblock %}
-
 {% block content %}
 {# Countdown bar: OUTSIDE all HTMX swap targets so partial swaps don't reset it.
-   Sits between topbar and page content. Resets on manual refresh + auto-refresh. #}
+   Sits at top of content area. Resets on manual refresh + auto-refresh. #}
 <div class="mon-countdown" id="mon-countdown" aria-hidden="true">
   <div class="mon-countdown-bar" id="mon-countdown-bar"></div>
+</div>
+
+{# Page header: title + updated-at + Refresh button #}
+<div class="mon-page-header">
+  <h1 class="mon-page-title">Monitoring</h1>
+  <div class="mon-page-actions">
+    <span class="freshness freshness--gray" id="updated-at">Updated {{ updated_at }}</span>
+    <button class="scan-btn-primary"
+            hx-post="/api/monitoring/refresh"
+            hx-target="#cards-partial"
+            hx-swap="innerHTML"
+            hx-include="#sort-select"
+            hx-indicator=".refresh-spinner">
+      <span class="refresh-spinner htmx-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+        </svg>
+      </span>
+      <span>Refresh</span>
+    </button>
+  </div>
 </div>
 
 <div class="page-shell">

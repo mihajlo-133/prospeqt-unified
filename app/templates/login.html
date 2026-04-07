@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 
 {% block title %}Admin Access — Email QA{% endblock %}
 
@@ -8,14 +8,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 64px);
+    min-height: 100vh;
     padding: 24px;
   }
 
   .login-card {
     background: var(--bg-el);
     border: 1px solid var(--bd);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 32px;
     width: 100%;
     max-width: 360px;
@@ -31,7 +31,7 @@
   .login-logo .logo-icon {
     width: 32px;
     height: 32px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: linear-gradient(180deg, #FFEAA9 0%, #FFD348 35%, #FF9B1C 65%, #FF4A00 100%);
     display: flex;
     align-items: center;
@@ -64,7 +64,7 @@
     width: 100%;
     background: var(--bg);
     border: 1px solid var(--bd);
-    border-radius: 8px;
+    border-radius: var(--radius);
     padding: 8px 12px;
     font-size: 14px;
     font-family: inherit;
@@ -82,7 +82,7 @@
     width: 100%;
     margin-top: 16px;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--blue);
     color: #fff;
     font-size: 14px;

@@ -2,11 +2,11 @@ import copy
 import json
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Cookie, Depends, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app.services.auth import check_password, create_session_token, require_admin
+from app.services.auth import check_password, create_session_token, require_admin, verify_session_token
 from app.services import monitoring_config
 from app.services.monitoring_config import get_config, save_config, validate_config
 from app.services.registry import (
@@ -34,6 +34,7 @@ def _admin_context(request: Request, **extra) -> dict:
     cfg = get_config()
     return {
         "request": request,
+        "active_tab": "admin",
         "workspaces": list_all_workspaces_detailed(),
         "config": cfg,
         "monitoring_clients": [e.name for e in list_monitoring_workspaces()],
@@ -42,8 +43,16 @@ def _admin_context(request: Request, **extra) -> dict:
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def admin_login_page(request: Request):
-    return templates.TemplateResponse(request, "login.html")
+async def admin_login_page(
+    request: Request,
+    admin_session: str | None = Cookie(default=None),
+):
+    # Redirect already-authenticated users straight to the admin panel
+    if admin_session and verify_session_token(admin_session):
+        return RedirectResponse(url="/admin", status_code=303)
+    return templates.TemplateResponse(
+        request, "login.html", {"active_tab": "admin"}
+    )
 
 
 @router.post("/login")
@@ -62,7 +71,7 @@ async def admin_login(request: Request, password: str = Form(...)):
     return templates.TemplateResponse(
         request,
         "login.html",
-        context={"error": "Incorrect password. Try again."},
+        context={"active_tab": "admin", "error": "Incorrect password. Try again."},
         status_code=200,
     )
 

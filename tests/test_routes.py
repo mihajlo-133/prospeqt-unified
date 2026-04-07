@@ -317,3 +317,33 @@ async def test_scan_campaign_endpoint(mock_env):
         response = await client.post("/qa/api/scan/ws/MyPlace/campaign/camp-001")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
+
+
+async def test_login_page_returns_html(mock_env):
+    """GET /admin/login returns 200 with login form for unauthenticated users."""
+    from app.main import create_app
+    from app.services import registry
+    registry.load_from_env()
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/admin/login")
+    assert response.status_code == 200
+    assert b"password" in response.content
+
+
+async def test_login_page_redirects_authed_user(mock_env):
+    """GET /admin/login redirects to /admin when user already has a valid session."""
+    from app.main import create_app
+    from app.services import registry
+    from app.services.auth import create_session_token
+    registry.load_from_env()
+    app = create_app()
+    token = create_session_token()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get(
+            "/admin/login",
+            cookies={"admin_session": token},
+            follow_redirects=False,
+        )
+    assert response.status_code == 303
+    assert response.headers.get("location") == "/admin"

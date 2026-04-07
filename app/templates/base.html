@@ -71,34 +71,15 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Topbar / Nav */
-    .topbar {
-      height: 64px;
-      background: var(--bg-el);
-      border-bottom: 1px solid var(--bd);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    /* ============================================================
+       Sidebar layout — mobile-first
+       ============================================================ */
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--tx1);
-      letter-spacing: -.03em;
-      font-family: 'Inter', sans-serif;
-      text-decoration: none;
-    }
+    /* Logo icon (flame) — used in sidebar header */
     .logo-icon {
       width: 28px;
       height: 28px;
+      flex-shrink: 0;
       border-radius: 6px;
       background: linear-gradient(180deg, #FFEAA9 0%, #FFD348 35%, #FF9B1C 65%, #FF4A00 100%);
       display: flex;
@@ -107,115 +88,204 @@
     }
     .logo-icon svg { width: 16px; height: 16px; }
 
-    /* Topbar left (logo) and right (actions) each flex: 1 so center tabs are truly centered */
-    .topbar-left {
-      flex: 1;
+    /* Sidebar — mobile: hidden off-screen left, slides in as overlay */
+    .sidebar {
+      position: fixed;
+      left: -280px;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: var(--bg-el);
+      border-right: 1px solid var(--bd);
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      transition: left var(--transition);
+      z-index: 200;
+      overflow-y: auto;
     }
-    .topbar-right {
-      flex: 1;
+    .sidebar.open { left: 0; }
+
+    /* Dim backdrop — only visible on mobile when sidebar is open */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 199;
+    }
+    .sidebar-backdrop.open { display: block; }
+
+    /* Hamburger button — mobile only */
+    .sidebar-hamburger {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
+      justify-content: center;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 201;
+      width: 44px;
+      height: 44px;
+      background: var(--bg-el);
+      border: 1px solid var(--bd);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--tx2);
+      font-size: 18px;
+      line-height: 1;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .sidebar-hamburger:hover {
+      background: var(--bg-hov);
+      border-color: var(--bd-s);
+      color: var(--tx1);
     }
 
-    /* Topbar center nav tabs */
-    .topbar-tabs {
+    /* Sidebar header (logo + wordmark) */
+    .sidebar-header {
       display: flex;
       align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
+      gap: 10px;
+      padding: 20px 16px 16px;
+      text-decoration: none;
+      color: var(--tx1);
     }
-    .tab-link {
-      display: inline-flex;
+    .sidebar-wordmark {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      font-family: 'Inter', sans-serif;
+      color: var(--tx1);
+    }
+
+    /* MENU section label */
+    .sidebar-menu-label {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--tx3);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Nav links */
+    .sidebar-link {
+      display: flex;
       align-items: center;
-      height: 64px;
-      padding: 0 16px;
+      gap: 10px;
+      padding: 11px 16px;
       font-size: 14px;
       font-weight: 500;
       color: var(--tx2);
       text-decoration: none;
-      border-bottom: 2px solid transparent;
-      transition: color var(--transition), border-color var(--transition);
-      white-space: nowrap;
+      transition: background var(--transition), color var(--transition);
+      border-left: 3px solid transparent;
+      font-family: 'Inter', sans-serif;
     }
-    .tab-link:hover { color: var(--tx1); }
-    .tab-link.tab-active {
-      color: var(--blue);
-      border-bottom-color: var(--blue);
-    }
-
-    @media (max-width: 639px) {
-      .topbar {
-        height: auto;
-        flex-wrap: wrap;
-        padding: 0 16px;
-        gap: 0;
-      }
-      .topbar-left {
-        height: 52px;
-      }
-      .topbar-tabs {
-        width: 100%;
-        border-top: 1px solid var(--bd);
-        gap: 0;
-        order: 3;
-      }
-      .tab-link {
-        flex: 1;
-        justify-content: center;
-        height: 44px;
-        font-size: 13px;
-        padding: 0 12px;
-      }
-      .topbar-right {
-        height: 52px;
-      }
-      .page-content {
-        min-height: calc(100vh - 96px);
-      }
-    }
-
-    /* Gear icon button */
-    .gear-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      min-width: 44px;
-      min-height: 44px;
-      border-radius: 8px;
-      border: 1px solid var(--bd);
-      background: var(--bg-el);
-      cursor: pointer;
-      text-decoration: none;
-      color: var(--tx2);
-      transition: background var(--transition), border-color var(--transition);
-      padding: 4px;
-    }
-
-    .gear-btn:hover {
+    .sidebar-link:hover {
       background: var(--bg-hov);
-      border-color: var(--bd-s);
-    }
-
-    .gear-btn:hover svg {
       color: var(--tx1);
     }
-
-    .gear-btn svg {
-      width: 18px;
-      height: 18px;
-      color: var(--tx2);
-      flex-shrink: 0;
+    .sidebar-link.active {
+      background: var(--bg-sel);
+      color: var(--blue);
+      border-left-color: var(--blue);
+    }
+    .sidebar-link:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: -2px;
     }
 
-    /* Page content */
+    /* Spacer pushes Settings to bottom */
+    .sidebar-spacer { flex-grow: 1; }
+
+    /* Settings link at bottom */
+    .sidebar-link-bottom {
+      border-top: 1px solid var(--bd);
+      margin-top: 8px;
+    }
+
+    /* Tablet tooltip — CSS-only, no JS */
+    .sidebar-link[data-tooltip] { position: relative; }
+    .sidebar-link[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 10px;
+      background: var(--tx1);
+      color: var(--bg);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s;
+      z-index: 300;
+    }
+    .sidebar-link[data-tooltip]:hover::after,
+    .sidebar-link[data-tooltip]:focus-visible::after { opacity: 1; }
+
+    /* Main content area — mobile: full width (hamburger floats above) */
     .page-content {
-      min-height: calc(100vh - 64px);
+      min-height: 100vh;
+      padding-top: 56px; /* clear hamburger button on mobile */
+    }
+
+    /* Tablet ≥640px: 60px icon-only rail */
+    @media (min-width: 640px) {
+      .sidebar {
+        left: 0;
+        width: 60px;
+      }
+      .sidebar-backdrop { display: none !important; }
+      .sidebar-hamburger { display: none; }
+      .sidebar-wordmark,
+      .sidebar-menu-label,
+      .sidebar-link-text { display: none; }
+      .sidebar-header { padding: 16px 0; justify-content: center; }
+      .sidebar-link {
+        justify-content: center;
+        padding: 12px 0;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+      }
+      .sidebar-link.active {
+        border-bottom-color: transparent;
+        border-left: 3px solid var(--blue);
+      }
+      .sidebar-link-bottom { border-top: 1px solid var(--bd); }
+      .page-content {
+        margin-left: 60px;
+        padding-top: 0;
+      }
+    }
+
+    /* Desktop ≥1024px: full 220px sidebar */
+    @media (min-width: 1024px) {
+      .sidebar { width: 220px; }
+      .sidebar-wordmark,
+      .sidebar-menu-label,
+      .sidebar-link-text { display: inline; }
+      .sidebar-header { padding: 20px 16px 16px; justify-content: flex-start; }
+      .sidebar-link {
+        justify-content: flex-start;
+        padding: 11px 16px;
+        border-left: 3px solid transparent;
+        border-bottom: none;
+      }
+      .sidebar-link.active {
+        border-left-color: var(--blue);
+        border-bottom: none;
+      }
+      .page-content {
+        margin-left: 220px;
+        padding-top: 0;
+      }
     }
 
     /* Toast container */
@@ -434,52 +504,142 @@
   {% block extra_styles %}{% endblock %}
 </head>
 <body>
-  <nav class="topbar">
-    <div class="topbar-left">
-      <a href="/monitoring" class="logo">
-        <span class="logo-icon">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
-        </span>
-        Prospeqt
-      </a>
-    </div>
+  <!-- Mobile hamburger button -->
+  <button class="sidebar-hamburger"
+          id="sidebar-hamburger"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="sidebar">&#9776;</button>
 
-    <div class="topbar-tabs">
-      <a href="/monitoring" class="tab-link{% if active_tab == 'monitoring' %} tab-active{% endif %}">Monitoring</a>
-      <a href="/qa" class="tab-link{% if active_tab == 'qa' %} tab-active{% endif %}">QA</a>
-    </div>
+  <!-- Dim backdrop for mobile overlay -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
 
-    <div class="topbar-right">
-      {% block topbar_right %}
-      <button class="scan-btn-primary"
-              hx-post="/qa/api/scan/all"
-              hx-target="body"
-              hx-swap="none"
-              hx-indicator=".scan-all-spinner">
-        <span class="scan-all-spinner htmx-indicator">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-          </svg>
-        </span>
-        <span class="scan-btn-label">Scan All</span>
-      </button>
-      <a href="/admin" class="gear-btn" aria-label="Admin settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  <!-- Sidebar navigation -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="/monitoring" class="sidebar-header">
+      <span class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
+      </span>
+      <span class="sidebar-wordmark">Prospeqt</span>
+    </a>
+
+    <div class="sidebar-menu-label">Menu</div>
+
+    <nav>
+      <a href="/monitoring"
+         class="sidebar-link{% if active_tab == 'monitoring' %} active{% endif %}"
+         data-tooltip="Monitoring"
+         {% if active_tab == 'monitoring' %}aria-current="page"{% endif %}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
+        <span class="sidebar-link-text">Monitoring</span>
       </a>
-      {% endblock %}
-    </div>
-  </nav>
+      <a href="/qa"
+         class="sidebar-link{% if active_tab == 'qa' %} active{% endif %}"
+         data-tooltip="Email Check"
+         {% if active_tab == 'qa' %}aria-current="page"{% endif %}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <span class="sidebar-link-text">Email Check</span>
+      </a>
+    </nav>
 
-  <div class="page-content">
+    <div class="sidebar-spacer"></div>
+
+    <a href="/admin/login"
+       class="sidebar-link sidebar-link-bottom{% if active_tab == 'admin' %} active{% endif %}"
+       data-tooltip="Settings"
+       {% if active_tab == 'admin' %}aria-current="page"{% endif %}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      <span class="sidebar-link-text">Settings</span>
+    </a>
+  </aside>
+
+  <main class="page-content">
     {% block content %}{% endblock %}
-  </div>
+  </main>
 
   <div id="toast-container"></div>
 
   <script>
+    // Hamburger toggle with focus trap and escape key
+    (function () {
+      var hamburger = document.getElementById('sidebar-hamburger');
+      var sidebar = document.getElementById('sidebar');
+      var backdrop = document.getElementById('sidebar-backdrop');
+
+      // Viewport-aware inert/aria-hidden: only hide sidebar from AT on mobile when closed
+      var mobileMQ = window.matchMedia('(max-width: 639px)');
+      function syncMobileState() {
+        if (mobileMQ.matches && !sidebar.classList.contains('open')) {
+          sidebar.setAttribute('inert', '');
+          sidebar.setAttribute('aria-hidden', 'true');
+        } else {
+          sidebar.removeAttribute('inert');
+          sidebar.removeAttribute('aria-hidden');
+        }
+      }
+      syncMobileState();
+      mobileMQ.addEventListener('change', syncMobileState);
+
+      function openSidebar() {
+        sidebar.classList.add('open');
+        backdrop.classList.add('open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        sidebar.removeAttribute('aria-hidden');
+        sidebar.removeAttribute('inert');
+        // Move focus into sidebar
+        var firstLink = sidebar.querySelector('a, button');
+        if (firstLink) firstLink.focus();
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        syncMobileState();
+        hamburger.focus();
+      }
+
+      hamburger.addEventListener('click', function () {
+        if (sidebar.classList.contains('open')) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      });
+
+      // Close on backdrop click
+      backdrop.addEventListener('click', closeSidebar);
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      // Focus trap inside sidebar when open on mobile
+      sidebar.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab') return;
+        if (!sidebar.classList.contains('open')) return; // guard: only trap when open
+        if (window.innerWidth >= 640) return; // only trap on mobile
+        var focusable = sidebar.querySelectorAll('a[href], button');
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      });
+    })();
+
     function showToast(message, type) {
       type = type || 'success';
       var container = document.getElementById('toast-container');
@@ -507,7 +667,6 @@
         showToast('Scan started — results will appear shortly...', 'success');
       }
     });
-
   </script>
   {% block extra_scripts %}{% endblock %}
 </body>
