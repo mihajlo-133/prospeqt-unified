@@ -1,0 +1,838 @@
+{
+  "_meta": {
+    "description": "Deterministic mock data for the 9 monitoring clients. Used by MOCK_MODE=1 / --mock to serve data through the full monitoring stack without live API keys. Shape matches get_all_monitoring_data() -> dict[client_name, ClientData]. Edge cases below are load-bearing for classification tests.",
+    "edge_cases": {
+      "SwishFunding": "GREEN \u2014 healthy: meets KPI, good reply rate, low bounce, long pool",
+      "MyPlace": "AMBER \u2014 sent_today below 80% of KPI (sent_pct_warn)",
+      "SmartMatchApp": "RED \u2014 active campaigns but sent_today == 0 (rule 2)",
+      "HeyReach": "AMBER \u2014 reply_rate below 1.0% warn threshold (rule 6)",
+      "Kayse": "RED \u2014 bounce_rate above 5.0% red threshold (rule 7)",
+      "Prosperly": "ERROR \u2014 fetch failed, friendly_error stored on cache entry",
+      "Enavra": "AMBER \u2014 pool_days below 7 (low not_contacted vs sent rate, rule 10)",
+      "RankZero": "GREEN \u2014 healthy EmailBison client (in_progress=null, daily=[], first_touch_today=0)",
+      "SwishFunding (EB)": "AMBER \u2014 EmailBison client with no active campaigns but total > 0 (rule 1)"
+    }
+  },
+  "SwishFunding": {
+    "platform": "instantly",
+    "active_campaigns": 4,
+    "total_campaigns": 5,
+    "sent_today": 9850,
+    "first_touch_today": 6200,
+    "followup_today": 3650,
+    "replies_today": 142,
+    "opps_today": 11,
+    "reply_rate_today": 1.44,
+    "reply_rate_7d": 1.38,
+    "bounce_rate": 1.9,
+    "not_contacted": 95000,
+    "in_progress": 18500,
+    "avg_sent_7d": 9720.0,
+    "avg_replies_7d": 134.5,
+    "avg_opps_7d": 9.3,
+    "opp_trend": "up",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [
+      {
+        "name": "SF \u2014 SMB founders Q1",
+        "id": "sf-camp-001",
+        "status": "active",
+        "sent_today": 2800,
+        "first_touch": 1800,
+        "followups": 1000,
+        "replies_today": 44,
+        "opps_today": 4,
+        "reply_rate": 1.57,
+        "not_contacted": 28000,
+        "in_progress": 5200,
+        "total_sent": 148000,
+        "total_leads": 190000,
+        "total_completed": 108000,
+        "total_bounced": 2600
+      },
+      {
+        "name": "SF \u2014 Mid-market CFO",
+        "id": "sf-camp-002",
+        "status": "active",
+        "sent_today": 2650,
+        "first_touch": 1550,
+        "followups": 1100,
+        "replies_today": 38,
+        "opps_today": 3,
+        "reply_rate": 1.43,
+        "not_contacted": 25000,
+        "in_progress": 4800,
+        "total_sent": 133000,
+        "total_leads": 175000,
+        "total_completed": 98000,
+        "total_bounced": 2400
+      },
+      {
+        "name": "SF \u2014 E-comm outreach",
+        "id": "sf-camp-003",
+        "status": "active",
+        "sent_today": 2250,
+        "first_touch": 1500,
+        "followups": 750,
+        "replies_today": 32,
+        "opps_today": 2,
+        "reply_rate": 1.42,
+        "not_contacted": 23000,
+        "in_progress": 4300,
+        "total_sent": 119000,
+        "total_leads": 158000,
+        "total_completed": 88000,
+        "total_bounced": 2100
+      },
+      {
+        "name": "SF \u2014 Agency reach",
+        "id": "sf-camp-004",
+        "status": "active",
+        "sent_today": 2150,
+        "first_touch": 1350,
+        "followups": 800,
+        "replies_today": 28,
+        "opps_today": 2,
+        "reply_rate": 1.3,
+        "not_contacted": 19000,
+        "in_progress": 4200,
+        "total_sent": 114000,
+        "total_leads": 152000,
+        "total_completed": 84000,
+        "total_bounced": 2000
+      },
+      {
+        "name": "SF \u2014 Legacy pilot",
+        "id": "sf-camp-005",
+        "status": "paused",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 0,
+        "in_progress": 0,
+        "total_sent": 42000,
+        "total_leads": 60000,
+        "total_completed": 40000,
+        "total_bounced": 800
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 9400,
+        "opps": 8,
+        "replies": 128
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 9600,
+        "opps": 9,
+        "replies": 132
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 9550,
+        "opps": 10,
+        "replies": 130
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 9700,
+        "opps": 9,
+        "replies": 135
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 9800,
+        "opps": 11,
+        "replies": 140
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 9820,
+        "opps": 10,
+        "replies": 138
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 9850,
+        "opps": 11,
+        "replies": 142
+      }
+    ]
+  },
+  "MyPlace": {
+    "platform": "instantly",
+    "active_campaigns": 2,
+    "total_campaigns": 2,
+    "sent_today": 1300,
+    "first_touch_today": 800,
+    "followup_today": 500,
+    "replies_today": 22,
+    "opps_today": 3,
+    "reply_rate_today": 1.69,
+    "reply_rate_7d": 1.62,
+    "bounce_rate": 2.4,
+    "not_contacted": 9400,
+    "in_progress": 3100,
+    "avg_sent_7d": 1420.0,
+    "avg_replies_7d": 23.1,
+    "avg_opps_7d": 3.4,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "down",
+    "campaigns": [
+      {
+        "name": "MP \u2014 HR SaaS trial",
+        "id": "mp-camp-001",
+        "status": "active",
+        "sent_today": 720,
+        "first_touch": 440,
+        "followups": 280,
+        "replies_today": 12,
+        "opps_today": 2,
+        "reply_rate": 1.67,
+        "not_contacted": 5200,
+        "in_progress": 1700,
+        "total_sent": 38000,
+        "total_leads": 52000,
+        "total_completed": 26000,
+        "total_bounced": 960
+      },
+      {
+        "name": "MP \u2014 Workspace owners",
+        "id": "mp-camp-002",
+        "status": "active",
+        "sent_today": 580,
+        "first_touch": 360,
+        "followups": 220,
+        "replies_today": 10,
+        "opps_today": 1,
+        "reply_rate": 1.72,
+        "not_contacted": 4200,
+        "in_progress": 1400,
+        "total_sent": 31000,
+        "total_leads": 44000,
+        "total_completed": 21000,
+        "total_bounced": 780
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 1460,
+        "opps": 3,
+        "replies": 23
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 1480,
+        "opps": 4,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 1440,
+        "opps": 3,
+        "replies": 22
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 1420,
+        "opps": 4,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 1410,
+        "opps": 3,
+        "replies": 23
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 1380,
+        "opps": 3,
+        "replies": 22
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 1300,
+        "opps": 3,
+        "replies": 22
+      }
+    ]
+  },
+  "SmartMatchApp": {
+    "platform": "instantly",
+    "active_campaigns": 2,
+    "total_campaigns": 3,
+    "sent_today": 0,
+    "first_touch_today": 0,
+    "followup_today": 0,
+    "replies_today": 0,
+    "opps_today": 0,
+    "reply_rate_today": 0.0,
+    "reply_rate_7d": 1.48,
+    "bounce_rate": 2.1,
+    "not_contacted": 12000,
+    "in_progress": 4200,
+    "avg_sent_7d": 1850.0,
+    "avg_replies_7d": 27.4,
+    "avg_opps_7d": 1.9,
+    "opp_trend": "down",
+    "reply_trend": "down",
+    "sent_trend": "down",
+    "campaigns": [
+      {
+        "name": "SMA \u2014 Recruiters",
+        "id": "sma-camp-001",
+        "status": "active",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 6400,
+        "in_progress": 2200,
+        "total_sent": 42000,
+        "total_leads": 60000,
+        "total_completed": 28000,
+        "total_bounced": 880
+      },
+      {
+        "name": "SMA \u2014 Talent ops",
+        "id": "sma-camp-002",
+        "status": "active",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 5600,
+        "in_progress": 2000,
+        "total_sent": 38000,
+        "total_leads": 54000,
+        "total_completed": 25000,
+        "total_bounced": 800
+      },
+      {
+        "name": "SMA \u2014 Paused legacy",
+        "id": "sma-camp-003",
+        "status": "paused",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 0,
+        "in_progress": 0,
+        "total_sent": 18000,
+        "total_leads": 24000,
+        "total_completed": 15000,
+        "total_bounced": 400
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 2100,
+        "opps": 2,
+        "replies": 31
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 2050,
+        "opps": 2,
+        "replies": 30
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 1980,
+        "opps": 2,
+        "replies": 28
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 1900,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 1820,
+        "opps": 2,
+        "replies": 26
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 1700,
+        "opps": 1,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 0,
+        "opps": 0,
+        "replies": 0
+      }
+    ]
+  },
+  "HeyReach": {
+    "platform": "instantly",
+    "active_campaigns": 2,
+    "total_campaigns": 2,
+    "sent_today": 1900,
+    "first_touch_today": 1150,
+    "followup_today": 750,
+    "replies_today": 13,
+    "opps_today": 2,
+    "reply_rate_today": 0.68,
+    "reply_rate_7d": 0.72,
+    "bounce_rate": 2.3,
+    "not_contacted": 14500,
+    "in_progress": 4100,
+    "avg_sent_7d": 1920.0,
+    "avg_replies_7d": 14.0,
+    "avg_opps_7d": 2.1,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [
+      {
+        "name": "HR \u2014 LinkedIn outreach",
+        "id": "hr-camp-001",
+        "status": "active",
+        "sent_today": 1000,
+        "first_touch": 620,
+        "followups": 380,
+        "replies_today": 7,
+        "opps_today": 1,
+        "reply_rate": 0.7,
+        "not_contacted": 7400,
+        "in_progress": 2100,
+        "total_sent": 46000,
+        "total_leads": 62000,
+        "total_completed": 31000,
+        "total_bounced": 1050
+      },
+      {
+        "name": "HR \u2014 Sales Nav follow-up",
+        "id": "hr-camp-002",
+        "status": "active",
+        "sent_today": 900,
+        "first_touch": 530,
+        "followups": 370,
+        "replies_today": 6,
+        "opps_today": 1,
+        "reply_rate": 0.67,
+        "not_contacted": 7100,
+        "in_progress": 2000,
+        "total_sent": 42000,
+        "total_leads": 58000,
+        "total_completed": 28000,
+        "total_bounced": 960
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 1950,
+        "opps": 2,
+        "replies": 14
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 1930,
+        "opps": 2,
+        "replies": 14
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 1940,
+        "opps": 3,
+        "replies": 15
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 1910,
+        "opps": 2,
+        "replies": 13
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 1920,
+        "opps": 2,
+        "replies": 14
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 1890,
+        "opps": 2,
+        "replies": 13
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 1900,
+        "opps": 2,
+        "replies": 13
+      }
+    ]
+  },
+  "Kayse": {
+    "platform": "instantly",
+    "active_campaigns": 2,
+    "total_campaigns": 2,
+    "sent_today": 1850,
+    "first_touch_today": 1100,
+    "followup_today": 750,
+    "replies_today": 25,
+    "opps_today": 2,
+    "reply_rate_today": 1.35,
+    "reply_rate_7d": 1.28,
+    "bounce_rate": 6.4,
+    "not_contacted": 11800,
+    "in_progress": 3900,
+    "avg_sent_7d": 1910.0,
+    "avg_replies_7d": 24.0,
+    "avg_opps_7d": 2.0,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [
+      {
+        "name": "KY \u2014 Legal ops",
+        "id": "ky-camp-001",
+        "status": "active",
+        "sent_today": 980,
+        "first_touch": 600,
+        "followups": 380,
+        "replies_today": 13,
+        "opps_today": 1,
+        "reply_rate": 1.33,
+        "not_contacted": 6200,
+        "in_progress": 2000,
+        "total_sent": 44000,
+        "total_leads": 60000,
+        "total_completed": 30000,
+        "total_bounced": 2950
+      },
+      {
+        "name": "KY \u2014 Claims managers",
+        "id": "ky-camp-002",
+        "status": "active",
+        "sent_today": 870,
+        "first_touch": 500,
+        "followups": 370,
+        "replies_today": 12,
+        "opps_today": 1,
+        "reply_rate": 1.38,
+        "not_contacted": 5600,
+        "in_progress": 1900,
+        "total_sent": 41000,
+        "total_leads": 56000,
+        "total_completed": 28000,
+        "total_bounced": 2750
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 1950,
+        "opps": 2,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 1920,
+        "opps": 2,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 1900,
+        "opps": 2,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 1890,
+        "opps": 2,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 1920,
+        "opps": 2,
+        "replies": 24
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 1900,
+        "opps": 2,
+        "replies": 23
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 1850,
+        "opps": 2,
+        "replies": 25
+      }
+    ]
+  },
+  "Prosperly": {
+    "_error": "Invalid API key",
+    "_error_raw": "401 Unauthorized: {\"message\":\"Invalid API key\"}",
+    "platform": "instantly",
+    "active_campaigns": 0,
+    "total_campaigns": 0,
+    "sent_today": 0,
+    "first_touch_today": 0,
+    "followup_today": 0,
+    "replies_today": 0,
+    "opps_today": 0,
+    "reply_rate_today": 0.0,
+    "reply_rate_7d": 0.0,
+    "bounce_rate": 0.0,
+    "not_contacted": 0,
+    "in_progress": 0,
+    "avg_sent_7d": 0.0,
+    "avg_replies_7d": 0.0,
+    "avg_opps_7d": 0.0,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [],
+    "daily": []
+  },
+  "Enavra": {
+    "platform": "instantly",
+    "active_campaigns": 2,
+    "total_campaigns": 2,
+    "sent_today": 2050,
+    "first_touch_today": 1250,
+    "followup_today": 800,
+    "replies_today": 28,
+    "opps_today": 2,
+    "reply_rate_today": 1.37,
+    "reply_rate_7d": 1.32,
+    "bounce_rate": 2.2,
+    "not_contacted": 9800,
+    "in_progress": 3400,
+    "avg_sent_7d": 2020.0,
+    "avg_replies_7d": 26.7,
+    "avg_opps_7d": 2.1,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [
+      {
+        "name": "EN \u2014 Ops leaders",
+        "id": "en-camp-001",
+        "status": "active",
+        "sent_today": 1080,
+        "first_touch": 660,
+        "followups": 420,
+        "replies_today": 15,
+        "opps_today": 1,
+        "reply_rate": 1.39,
+        "not_contacted": 5200,
+        "in_progress": 1800,
+        "total_sent": 48000,
+        "total_leads": 66000,
+        "total_completed": 32000,
+        "total_bounced": 1060
+      },
+      {
+        "name": "EN \u2014 Finance directors",
+        "id": "en-camp-002",
+        "status": "active",
+        "sent_today": 970,
+        "first_touch": 590,
+        "followups": 380,
+        "replies_today": 13,
+        "opps_today": 1,
+        "reply_rate": 1.34,
+        "not_contacted": 4600,
+        "in_progress": 1600,
+        "total_sent": 44000,
+        "total_leads": 60000,
+        "total_completed": 29000,
+        "total_bounced": 960
+      }
+    ],
+    "daily": [
+      {
+        "date": "2026-04-01",
+        "sent": 2000,
+        "opps": 2,
+        "replies": 26
+      },
+      {
+        "date": "2026-04-02",
+        "sent": 2010,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-03",
+        "sent": 2020,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-04",
+        "sent": 2030,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-05",
+        "sent": 2020,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-06",
+        "sent": 2040,
+        "opps": 2,
+        "replies": 27
+      },
+      {
+        "date": "2026-04-07",
+        "sent": 2050,
+        "opps": 2,
+        "replies": 28
+      }
+    ]
+  },
+  "RankZero": {
+    "platform": "emailbison",
+    "active_campaigns": 3,
+    "total_campaigns": 3,
+    "sent_today": 1950,
+    "first_touch_today": 0,
+    "followup_today": 0,
+    "replies_today": 30,
+    "opps_today": 3,
+    "reply_rate_today": 1.54,
+    "reply_rate_7d": 1.48,
+    "bounce_rate": 2.7,
+    "not_contacted": 22000,
+    "in_progress": null,
+    "avg_sent_7d": 1980.0,
+    "avg_replies_7d": 28.9,
+    "avg_opps_7d": 2.6,
+    "opp_trend": "up",
+    "reply_trend": "flat",
+    "sent_trend": "flat",
+    "campaigns": [
+      {
+        "name": "RZ \u2014 SaaS founders",
+        "id": "rz-eb-001",
+        "status": "active",
+        "sent_today": 720,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 11,
+        "opps_today": 1,
+        "reply_rate": 1.53,
+        "not_contacted": 8200,
+        "in_progress": null,
+        "total_sent": 38000,
+        "total_bounced": 1030
+      },
+      {
+        "name": "RZ \u2014 Growth leads",
+        "id": "rz-eb-002",
+        "status": "active",
+        "sent_today": 650,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 10,
+        "opps_today": 1,
+        "reply_rate": 1.54,
+        "not_contacted": 7400,
+        "in_progress": null,
+        "total_sent": 35000,
+        "total_bounced": 940
+      },
+      {
+        "name": "RZ \u2014 Content marketers",
+        "id": "rz-eb-003",
+        "status": "active",
+        "sent_today": 580,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 9,
+        "opps_today": 1,
+        "reply_rate": 1.55,
+        "not_contacted": 6400,
+        "in_progress": null,
+        "total_sent": 32000,
+        "total_bounced": 870
+      }
+    ],
+    "daily": []
+  },
+  "SwishFunding (EB)": {
+    "platform": "emailbison",
+    "active_campaigns": 0,
+    "total_campaigns": 2,
+    "sent_today": 0,
+    "first_touch_today": 0,
+    "followup_today": 0,
+    "replies_today": 0,
+    "opps_today": 0,
+    "reply_rate_today": 0.0,
+    "reply_rate_7d": 1.22,
+    "bounce_rate": 2.9,
+    "not_contacted": 8400,
+    "in_progress": null,
+    "avg_sent_7d": 1400.0,
+    "avg_replies_7d": 17.2,
+    "avg_opps_7d": 1.4,
+    "opp_trend": "flat",
+    "reply_trend": "flat",
+    "sent_trend": "down",
+    "campaigns": [
+      {
+        "name": "SFEB \u2014 Legacy q4",
+        "id": "sfeb-eb-001",
+        "status": "paused",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 4200,
+        "in_progress": null,
+        "total_sent": 32000,
+        "total_bounced": 920
+      },
+      {
+        "name": "SFEB \u2014 Pilot revive",
+        "id": "sfeb-eb-002",
+        "status": "paused",
+        "sent_today": 0,
+        "first_touch": 0,
+        "followups": 0,
+        "replies_today": 0,
+        "opps_today": 0,
+        "reply_rate": 0.0,
+        "not_contacted": 4200,
+        "in_progress": null,
+        "total_sent": 30000,
+        "total_bounced": 870
+      }
+    ],
+    "daily": []
+  }
+}
