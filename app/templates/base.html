@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Email QA{% endblock %}</title>
+  <title>{% block title %}Prospeqt{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAHlBMVEVMaXEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABKvP01AAAACXRSTlMA46EiQoTCEGeetEsFAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWElEQVR42u2Xyw7EIAhFS1Us///Dk3bqGywyq0l6t+oJeIngtk3lcXebXW4nIjisx2MAumRE+Pv4KUMeDqlRcIvRU6+lPA4gRqANwiMJUl3FZZ0kCGrrRMShts6Qh0NSSbCUsW4pjwNoQYOlHmlR3VVI5qGTIgtRkQJ46W6Qu8cwVE0UwrvATQLcxjrJpj5yOZYN2RaXN6KXMkxxxX3Pq1VQ342M0Xd4CXzWfA0oEbvA3HAq1Ay+cmoB5ZgTi93HpuZ7gPbRyb4OAN2jU66TATw/OnXNswDC+fmmUlgAvIAX8AL+AdD272VA36NWAUPzWwMw/XsFELnurQcIo5caII1eBQBTgDi8VENjFeIIkMYkz484SsDYBtNooAOw/fseDRSAfvrIQQQVAPx0VH8CAD99lDxwDkDDL1CRvBJg/UFOrdMD0P4FfrJOAQBz9F/ATx/48zmYLn8A5oQ0r5uSKKoAAAAASUVORK5CYII=">
@@ -31,6 +31,7 @@
       --amber-text: #D97706;
       --red: #EF4444;
       --red-text: #DC2626;
+      --purple: #8B5CF6;
       --sh: 0 1px 2px rgba(0,0,0,.05);
       --sh-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
       --sh-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
@@ -92,10 +93,75 @@
     }
     .logo-icon svg { width: 16px; height: 16px; }
 
-    .topbar-actions {
+    /* Topbar left (logo) and right (actions) each flex: 1 so center tabs are truly centered */
+    .topbar-left {
+      flex: 1;
       display: flex;
       align-items: center;
+    }
+    .topbar-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       gap: 8px;
+    }
+
+    /* Topbar center nav tabs */
+    .topbar-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .tab-link {
+      display: inline-flex;
+      align-items: center;
+      height: 64px;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tx2);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+    .tab-link:hover { color: var(--tx1); }
+    .tab-link.tab-active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    @media (max-width: 639px) {
+      .topbar {
+        height: auto;
+        flex-wrap: wrap;
+        padding: 0 16px;
+        gap: 0;
+      }
+      .topbar-left {
+        height: 52px;
+      }
+      .topbar-tabs {
+        width: 100%;
+        border-top: 1px solid var(--bd);
+        gap: 0;
+        order: 3;
+      }
+      .tab-link {
+        flex: 1;
+        justify-content: center;
+        height: 44px;
+        font-size: 13px;
+        padding: 0 12px;
+      }
+      .topbar-right {
+        height: 52px;
+      }
+      .page-content {
+        min-height: calc(100vh - 96px);
+      }
     }
 
     /* Gear icon button */
@@ -354,15 +420,24 @@
 </head>
 <body>
   <nav class="topbar">
-    <a href="/" class="logo">
-      <span class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
-      </span>
-      Email QA
-    </a>
-    <div class="topbar-actions">
+    <div class="topbar-left">
+      <a href="/monitoring" class="logo">
+        <span class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z" fill="#fff"/></svg>
+        </span>
+        Prospeqt
+      </a>
+    </div>
+
+    <div class="topbar-tabs">
+      <a href="/monitoring" class="tab-link{% if active_tab == 'monitoring' %} tab-active{% endif %}">Monitoring</a>
+      <a href="/qa" class="tab-link{% if active_tab == 'qa' %} tab-active{% endif %}">QA</a>
+    </div>
+
+    <div class="topbar-right">
+      {% block topbar_right %}
       <button class="scan-btn-primary"
-              hx-post="/api/scan/all"
+              hx-post="/qa/api/scan/all"
               hx-target="body"
               hx-swap="none"
               hx-indicator=".scan-all-spinner">
@@ -379,6 +454,7 @@
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </a>
+      {% endblock %}
     </div>
   </nav>
 
@@ -412,7 +488,7 @@
     // Show toast when scan buttons are clicked
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
       var path = evt.detail.pathInfo && evt.detail.pathInfo.requestPath || '';
-      if (path.indexOf('/api/scan') === 0) {
+      if (path.indexOf('/qa/api/scan') !== -1 || path.indexOf('/api/scan') === 0) {
         showToast('Scan started — results will appear shortly...', 'success');
       }
     });

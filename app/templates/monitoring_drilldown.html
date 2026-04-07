@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}{{ name }} — Monitoring{% endblock %}
+
+{#
+  Phase 3a STUB drill-down. Phase 3b will replace this with the full per-client
+  view: campaign table, 7-day timeseries chart, sending accounts, breakdowns.
+
+  Data contract documented at the top of /api/monitoring/{slug} in
+  app/routes/monitoring.py — KEEP IN SYNC if you add or remove keys here.
+
+  Variables this template currently consumes:
+    name           — display name
+    slug           — URL slug
+    not_found      — bool, True → 404 placeholder
+    entry          — full enriched ClientData dict (or None if not_found)
+    card           — view-model from build_card_view (reuse for hero zones)
+    platform       — "instantly" | "emailbison"
+    workspace_id   — registry workspace_id (Instantly only)
+    instantly_url  — analytics URL or None
+    updated_at     — HH:MM:SS local
+    error_msg      — friendly error if entry.status == "error"
+#}
+
+{% block extra_styles %}
+<style>
+  .dd-shell { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .dd-breadcrumb {
+    font-size: 13px;
+    color: var(--tx3);
+    margin-bottom: 16px;
+  }
+  .dd-breadcrumb a { color: var(--blue); text-decoration: none; }
+  .dd-breadcrumb a:hover { text-decoration: underline; }
+
+  .dd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--bd);
+  }
+  .dd-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--tx1);
+  }
+  .dd-subtitle {
+    font-size: 13px;
+    color: var(--tx2);
+    margin-top: 2px;
+  }
+
+  .dd-stub {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 64px 24px;
+    background: var(--bg-el);
+    border: 1px dashed var(--bd-s);
+    border-radius: var(--radius-lg);
+    color: var(--tx2);
+  }
+  .dd-stub-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .dd-stub h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tx1);
+    margin-bottom: 8px;
+  }
+  .dd-stub p { font-size: 14px; max-width: 480px; }
+
+  .dd-error {
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.2);
+    color: var(--red-text);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dd-shell">
+
+  <div class="dd-breadcrumb">
+    <a href="/monitoring">Monitoring</a>
+    <span>&nbsp;&middot;&nbsp;</span>
+    <span>{{ name }}</span>
+  </div>
+
+  {% if not_found %}
+    <div class="dd-stub" role="alert">
+      <div class="dd-stub-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h2>Client not found</h2>
+      <p>No monitoring client matches the slug <code>{{ slug }}</code>. Pick a card from the <a href="/monitoring">monitoring overview</a>.</p>
+    </div>
+  {% else %}
+
+    <div class="dd-header">
+      <div>
+        <div class="dd-title">{{ name }}</div>
+        <div class="dd-subtitle">
+          {{ platform }} &middot; status: {{ card.status }} &middot; updated {{ updated_at }}
+        </div>
+      </div>
+      {% if instantly_url %}
+      <a class="scan-btn-secondary" href="{{ instantly_url }}" target="_blank" rel="noopener">
+        View in Instantly
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+      {% endif %}
+    </div>
+
+    {% if error_msg %}
+      <div class="dd-error">{{ error_msg }}</div>
+    {% endif %}
+
+    <div class="dd-stub">
+      <div class="dd-stub-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </div>
+      <h2>Drill-down coming in Phase 3b</h2>
+      <p>
+        Phase 3b will surface campaign-level health, 7-day sent/replies/opps timeseries,
+        first-touch vs follow-up breakdown, and (for Instantly clients) the sending
+        account list — all on this page. The data contract is already wired and
+        documented in <code>app/routes/monitoring.py</code>.
+      </p>
+    </div>
+
+  {% endif %}
+</div>
+{% endblock %}

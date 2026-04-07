@@ -28,6 +28,7 @@ VIEWPORTS = [
 ]
 
 PAGES = [
+    ("monitoring", "/monitoring"),
     ("dashboard", "/"),
     ("login", "/admin/login"),
 ]
@@ -53,13 +54,15 @@ def wait_for_server(port: int, timeout: float = 15.0) -> bool:
 
 def capture_screenshots(port: int, prefix: str) -> list[str]:
     """Capture screenshots at all viewports for all pages using Playwright CLI."""
-    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+    # Use a subdirectory named after the prefix so phase-specific screenshots stay organised
+    out_dir = SCREENSHOTS_DIR / prefix if prefix != "qa" else SCREENSHOTS_DIR
+    out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     saved = []
 
     for vp_name, vp_size in VIEWPORTS:
         for page_name, path in PAGES:
-            out_path = SCREENSHOTS_DIR / f"{prefix}_{page_name}_{vp_name}_{ts}.png"
+            out_path = out_dir / f"{prefix}_{page_name}_{vp_name}_{ts}.png"
             url = f"http://localhost:{port}{path}"
 
             result = subprocess.run(
@@ -103,7 +106,8 @@ def main():
     saved = capture_screenshots(args.port, args.prefix)
 
     if saved:
-        print(f"\n{len(saved)} screenshots saved to {SCREENSHOTS_DIR}/")
+        out_dir = SCREENSHOTS_DIR / args.prefix if args.prefix != "qa" else SCREENSHOTS_DIR
+        print(f"\n{len(saved)} screenshots saved to {out_dir}/")
     else:
         print("\nNo screenshots captured. Check Playwright installation.")
         sys.exit(1)

@@ -1,0 +1,120 @@
+{# Monitoring card grid partial — swapped by HTMX on sort change and refresh.
+
+   Inputs:
+     cards  — list of view-model dicts produced by build_card_view().
+              Templates do NOT compute colors or thresholds — every CSS class
+              and pre-formatted string is set in monitoring_view.py.
+#}
+<div class="cards-grid">
+  {% for c in cards %}
+
+    {# ----- Loading state ----- #}
+    {% if c.is_loading %}
+    <div class="mon-card mon-card--loading mon-card--health-gray" data-client="{{ c.name }}" aria-busy="true">
+      <div class="mon-card-zone-tl">
+        <div class="mon-card-name">{{ c.name }}</div>
+        <div class="mon-card-platform">{{ c.platform }}</div>
+      </div>
+      <div class="mon-skel mon-skel--hero"></div>
+      <div class="mon-skel mon-skel--hero"></div>
+      <div class="mon-skel"></div>
+      <div class="mon-skel"></div>
+    </div>
+
+    {# ----- Error state ----- #}
+    {% elif c.is_error %}
+    <div class="mon-card mon-card--error mon-card--health-red" data-client="{{ c.name }}" role="alert">
+      <div class="mon-card-zone-tl">
+        <div class="mon-card-name">{{ c.name }}</div>
+        <div class="mon-card-platform">{{ c.platform }}</div>
+      </div>
+      <div class="mon-card-error-msg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ c.error_msg }}</span>
+      </div>
+    </div>
+
+    {# ----- Live state ----- #}
+    {% else %}
+    <a href="/monitoring/{{ c.slug }}"
+       class="mon-card mon-card--health-{{ c.health }}"
+       data-client="{{ c.name }}"
+       data-status="{{ c.status }}">
+
+      {# Upper-left: identity, platform, status pill, campaign counts #}
+      <div class="mon-card-zone-tl">
+        <div class="mon-card-name">{{ c.name }}</div>
+        <div class="mon-card-platform">
+          <span class="platform-dot platform-dot--{{ c.platform }}" aria-hidden="true"></span>
+          {{ c.platform }}
+        </div>
+        <span class="pill {{ c.pill_class }}">{{ c.status_label }}</span>
+        <div class="mon-card-camps">
+          {{ c.active_n }} active &middot; {{ c.paused_n }} paused &middot; {{ c.completed_n }} completed
+        </div>
+      </div>
+
+      {# Upper-mid: SENT TODAY #}
+      <div class="mon-card-zone-tm">
+        <div class="text-meta">SENT TODAY</div>
+        <div class="mon-hero mon-hero--lg {{ c.sent_class }}">{{ c.sent_today_fmt }}</div>
+        <div class="mon-zone-detail">1st Touch: {{ c.first_touch }} &middot; Follow-ups: {{ c.followups }}</div>
+        <div class="mon-zone-trend">
+          <span class="trend-arrow {{ c.sent_trend_class }}" aria-hidden="true">{{ c.sent_trend_glyph }}</span>
+          <span>{{ c.sent_vs_avg_text }}</span>
+        </div>
+      </div>
+
+      {# Upper-right: NOT CONTACTED #}
+      <div class="mon-card-zone-tr">
+        <div class="text-meta">NOT CONTACTED</div>
+        <div class="mon-hero mon-hero--sm {{ c.runway_class }}">{{ c.not_contacted_fmt }}</div>
+        <div class="mon-zone-detail">{{ c.runway_text }}</div>
+      </div>
+
+      {# Lower-left: REPLY RATE #}
+      <div class="mon-card-zone-bl">
+        <div class="text-meta">REPLY RATE</div>
+        <div class="mon-hero mon-hero--md {{ c.reply_rate_class }}">{{ c.reply_rate_today_fmt }}</div>
+        <div class="mon-zone-trend">
+          <span class="trend-arrow {{ c.reply_trend_class }}" aria-hidden="true">{{ c.reply_trend_glyph }}</span>
+          <span>7d avg: {{ c.reply_rate_7d_fmt }} &middot; {{ c.replies_today }} replied &middot; {{ c.opps_today }} opps</span>
+        </div>
+      </div>
+
+      {# Lower-right: BOUNCE RATE #}
+      <div class="mon-card-zone-br">
+        <div class="text-meta">BOUNCE RATE</div>
+        <div class="mon-hero mon-hero--md {{ c.bounce_class }}">{{ c.bounce_rate_fmt }}</div>
+        <div class="mon-zone-trend">
+          <span class="bounce-dot bounce-dot--{{ c.bounce_health }}" aria-hidden="true"></span>
+          <span>{{ c.bounce_label }} &middot; {{ c.in_progress_fmt }} in progress</span>
+        </div>
+      </div>
+
+      {# Action row — Instantly only #}
+      {% if c.instantly_url %}
+      <div class="mon-card-action">
+        <a class="mon-action-btn"
+           href="{{ c.instantly_url }}"
+           target="_blank"
+           rel="noopener"
+           onclick="event.stopPropagation()">
+          View in Instantly
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+      {% endif %}
+    </a>
+    {% endif %}
+
+  {% endfor %}
+</div>

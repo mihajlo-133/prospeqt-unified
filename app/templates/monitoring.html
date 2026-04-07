@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block title %}Monitoring — Prospeqt{% endblock %}
+
+{% block extra_styles %}
+<style>
+  /* Summary chip bar — horizontal scroll on mobile */
+  .summary-bar {
+    padding: 20px 0 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .summary-bar::-webkit-scrollbar { display: none; }
+  .summary-bar .chips {
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
+  .chip-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--bd);
+    flex-shrink: 0;
+    margin: 0 4px;
+  }
+
+  /* Skeleton shimmer chips (loading state) */
+  @keyframes chip-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .chip-skel {
+    height: 32px;
+    width: 120px;
+    border-radius: 8px;
+    border: 1px solid var(--bd);
+    background: linear-gradient(90deg, var(--bg-el) 0%, var(--bg-alt) 50%, var(--bg-el) 100%);
+    background-size: 200% 100%;
+    animation: chip-shimmer 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .chip-skel.w-sm { width: 90px; }
+  .chip-skel.w-lg { width: 150px; }
+
+  /* Sort controls bar */
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 0 16px;
+  }
+  .sort-label {
+    font-size: 12px;
+    color: var(--tx2);
+    font-family: 'Inter', sans-serif;
+  }
+  .sort-select {
+    height: 36px;
+    min-height: 44px;
+    padding: 0 32px 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--bd);
+    background: var(--bg-el);
+    color: var(--tx1);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color var(--transition), background-color var(--transition);
+  }
+  .sort-select:hover { border-color: var(--bd-s); background-color: var(--bg-hov); }
+  .sort-select:focus { outline: none; border-color: var(--blue); }
+
+  /* ============================================================
+     Card grid (T4) — mobile-first
+     ============================================================ */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 1100px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Card container — 3-column zone grid on tablet+ */
+  .mon-card {
+    display: grid;
+    grid-template-columns: minmax(160px, 1.1fr) 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "tl tm tr"
+      "tl bl br"
+      "action action action";
+    gap: 16px 20px;
+    padding: 20px 22px;
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 6px 0 0 var(--tx3), var(--sh-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    position: relative;
+  }
+  a.mon-card { cursor: pointer; }
+  a.mon-card:hover {
+    transform: translateY(-1px);
+    background: var(--bg-hov);
+  }
+
+  /* Health left rail (inset box-shadow per QA-card pattern) + 4% bg tint */
+  .mon-card--health-red    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-md); background: rgba(239,68,68,.04); }
+  .mon-card--health-amber  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-md); background: rgba(245,158,11,.04); }
+  .mon-card--health-green  { box-shadow: inset 6px 0 0 var(--green), var(--sh-md); background: rgba(34,197,94,.04); }
+  .mon-card--health-gray   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-md); background: var(--bg-el); }
+  a.mon-card--health-red:hover    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-lg); }
+  a.mon-card--health-amber:hover  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-lg); }
+  a.mon-card--health-green:hover  { box-shadow: inset 6px 0 0 var(--green), var(--sh-lg); }
+  a.mon-card--health-gray:hover   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-lg); }
+
+  /* Zones */
+  .mon-card-zone-tl { grid-area: tl; display: flex; flex-direction: column; gap: 6px; }
+  .mon-card-zone-tm { grid-area: tm; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mon-card-zone-tr { grid-area: tr; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mon-card-zone-bl { grid-area: bl; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mon-card-zone-br { grid-area: br; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mon-card-action  { grid-area: action; display: flex; justify-content: flex-end; }
+
+  /* Mobile layout — stack zones into 2 columns under identity */
+  @media (max-width: 639px) {
+    .mon-card {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "tl tl"
+        "tm tr"
+        "bl br"
+        "action action";
+      gap: 14px 16px;
+      padding: 18px 18px;
+    }
+  }
+
+  /* Identity zone */
+  .mon-card-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -.02em;
+    color: var(--tx1);
+    line-height: 1.2;
+  }
+  .mon-card-platform {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--tx3);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .platform-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .platform-dot--instantly  { background: var(--blue); }
+  .platform-dot--emailbison { background: var(--purple); }
+
+  /* Status pill reuses .pill / .pill-g/.pill-a/.pill-r from base.html.
+     Just need self-alignment + spacing inside the card. */
+  .mon-card-zone-tl .pill { align-self: flex-start; margin-top: 2px; }
+
+  .mon-card-camps {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--tx2);
+    margin-top: 2px;
+  }
+
+  /* Hero numbers — color comes from .hero--* class set in Python */
+  .mon-hero {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.1;
+    color: var(--tx1);
+    letter-spacing: -.01em;
+  }
+  .mon-hero--lg { font-size: 28px; }
+  .mon-hero--md { font-size: 20px; }
+  .mon-hero--sm { font-size: 24px; }   /* NOT CONTACTED zone (GOAL 3.3.15) */
+  .hero--red     { color: var(--red-text); }
+  .hero--amber   { color: var(--amber-text); }
+  .hero--green   { color: var(--green-text); }
+  .hero--neutral { color: var(--tx1); }
+
+  .mon-zone-detail {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--tx2);
+  }
+
+  .mon-zone-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--tx2);
+  }
+
+  .trend-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .trend--up   { color: var(--green-text); }
+  .trend--down { color: var(--red-text); }
+  .trend--flat { color: var(--tx3); }
+
+  .bounce-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .bounce-dot--red    { background: var(--red); }
+  .bounce-dot--amber  { background: var(--amber); }
+  .bounce-dot--green  { background: var(--green); }
+
+  /* Action row */
+  .mon-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid var(--bd);
+    background: var(--bg-el);
+    color: var(--tx2);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+    position: relative;
+    z-index: 2;
+  }
+  .mon-action-btn:hover {
+    background: var(--bg-hov);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  /* Error state */
+  .mon-card--error {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "tl"
+      "err";
+    cursor: default;
+  }
+  .mon-card--error:hover { transform: none; box-shadow: var(--sh-md); }
+  .mon-card-error-msg {
+    grid-area: err;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.2);
+    color: var(--red-text);
+    font-size: 13px;
+  }
+
+  /* Loading skeleton state */
+  .mon-card--loading {
+    grid-template-areas:
+      "tl tl tl"
+      "s1 s2 s3"
+      "s4 s4 s4";
+    cursor: default;
+  }
+  .mon-card--loading .mon-skel:nth-of-type(1) { grid-area: s1; }
+  .mon-card--loading .mon-skel:nth-of-type(2) { grid-area: s2; }
+  .mon-card--loading .mon-skel:nth-of-type(3) { grid-area: s3; }
+  .mon-card--loading .mon-skel:nth-of-type(4) { grid-area: s4; }
+  .mon-skel {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--bg-el) 0%, var(--bg-alt) 50%, var(--bg-el) 100%);
+    background-size: 200% 100%;
+    animation: chip-shimmer 1.4s ease-in-out infinite;
+  }
+  .mon-skel--hero { height: 28px; }
+</style>
+{% endblock %}
+
+{% block topbar_right %}
+  <span class="freshness freshness--gray" id="updated-at" style="margin-right: 4px;">
+    Updated {{ updated_at }}
+  </span>
+  <button class="scan-btn-primary"
+          hx-post="/api/monitoring/refresh"
+          hx-target="#cards-partial"
+          hx-swap="innerHTML"
+          hx-include="#sort-select"
+          hx-indicator=".refresh-spinner">
+    <span class="refresh-spinner htmx-indicator">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+      </svg>
+    </span>
+    <span>Refresh</span>
+  </button>
+  <a href="/admin" class="gear-btn" aria-label="Admin settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  {# Summary chips (3.1.x). Skeleton state when every client is still loading. #}
+  <div class="summary-bar" aria-label="Summary">
+    {% if summary.loading %}
+    <div class="chips">
+      <div class="chip-skel w-sm"></div>
+      <div class="chip-skel w-sm"></div>
+      <div class="chip-skel w-sm"></div>
+      <div class="chip-divider"></div>
+      <div class="chip-skel"></div>
+      <div class="chip-skel"></div>
+      <div class="chip-skel w-lg"></div>
+    </div>
+    {% else %}
+    <div class="chips">
+      {% if summary.red_count > 0 %}
+      <span class="chip c-red"><span class="dot dot-red"></span><strong>{{ summary.red_count }}</strong>&nbsp;action needed</span>
+      {% endif %}
+      {% if summary.amber_count > 0 %}
+      <span class="chip c-amber"><span class="dot dot-amber"></span><strong>{{ summary.amber_count }}</strong>&nbsp;watch</span>
+      {% endif %}
+      {% if summary.green_count > 0 %}
+      <span class="chip c-green"><span class="dot dot-green"></span><strong>{{ summary.green_count }}</strong>&nbsp;on track</span>
+      {% endif %}
+      {% if summary.red_count > 0 or summary.amber_count > 0 or summary.green_count > 0 %}
+      <span class="chip-divider" role="separator" aria-hidden="true"></span>
+      {% endif %}
+      <span class="chip c-blue"><strong>{{ "{:,}".format(summary.sent_today_total) }}</strong>&nbsp;sent today</span>
+      <span class="chip c-blue"><strong>{{ "{:,}".format(summary.opps_today_total) }}</strong>&nbsp;opps</span>
+      <span class="chip c-blue">Reply rate&nbsp;<strong>{{ "%.2f"|format(summary.reply_rate_pct) }}%</strong></span>
+    </div>
+    {% endif %}
+  </div>
+
+  {# Sort controls — sit OUTSIDE the swap target so they stay stable across HTMX updates. #}
+  <div class="sort-bar">
+    <label class="sort-label" for="sort-select">Sort by</label>
+    <select id="sort-select"
+            name="sort"
+            class="sort-select"
+            hx-get="/api/monitoring/cards"
+            hx-target="#cards-partial"
+            hx-swap="innerHTML"
+            hx-trigger="change">
+      {% for value, label in sort_options %}
+      <option value="{{ value }}"{% if sort == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="monitoring-cards">
+    {# Auto-refresh: every 300s the cards partial re-fetches itself in place.
+       Sort value rides along via hx-include so the order is preserved across
+       background swaps (GOAL.md 6.2). #}
+    <div id="cards-partial"
+         hx-get="/api/monitoring/cards"
+         hx-trigger="every 300s"
+         hx-target="this"
+         hx-swap="innerHTML"
+         hx-include="#sort-select">
+      {% include "_monitoring_cards.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}
