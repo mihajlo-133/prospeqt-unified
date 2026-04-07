@@ -266,7 +266,7 @@
   }
   .dd-empty-icon {
     width: 44px; height: 44px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--blue-bg);
     color: var(--blue);
     display: inline-flex; align-items: center; justify-content: center;
@@ -292,14 +292,14 @@
     flex-shrink: 0;
   }
   .dd-alert--red {
-    background: rgba(239,68,68,.06);
-    border-color: rgba(239,68,68,.2);
+    background: var(--red-bg);
+    border-color: var(--red-bd);
     color: var(--red-text);
   }
   .dd-alert--red .dd-alert-dot { background: var(--red); }
   .dd-alert--amber {
-    background: rgba(245,158,11,.06);
-    border-color: rgba(245,158,11,.2);
+    background: var(--amber-bg);
+    border-color: var(--amber-bd);
     color: var(--amber-text);
   }
   .dd-alert--amber .dd-alert-dot { background: var(--amber); }
@@ -334,14 +334,14 @@
   .kpi-bar {
     height: 6px;
     background: var(--bd);
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     margin-top: 2px;
   }
   .kpi-bar-fill {
     height: 100%;
     background: var(--blue);
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     transition: width var(--transition);
   }
   .kpi-bar-fill.hero--green   { background: var(--green); }
@@ -353,14 +353,14 @@
     position: relative;
     height: 6px;
     background: var(--bd);
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     margin-top: 2px;
   }
   .kpi-axis-fill {
     position: absolute;
     inset: 0 auto 0 0;
     background: var(--blue);
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
   }
   .kpi-axis-fill.hero--green { background: var(--green); }
   .kpi-axis-fill.hero--amber { background: var(--amber); }
@@ -452,12 +452,6 @@
   .camp-table .right { text-align: right; }
   .camp-table .camp-name { font-weight: 500; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Reused pill—blue variant for completed status */
-  .pill-blue {
-    background: var(--blue-bg);
-    color: var(--blue);
-    border: 1px solid rgba(37,99,235,.2);
-  }
 </style>
 
 <script>

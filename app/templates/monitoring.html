@@ -31,7 +31,7 @@
   .chip-skel {
     height: 32px;
     width: 120px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     border: 1px solid var(--bd);
     background: linear-gradient(90deg, var(--bg-el) 0%, var(--bg-alt) 50%, var(--bg-el) 100%);
     background-size: 200% 100%;
@@ -58,7 +58,7 @@
     height: 36px;
     min-height: 44px;
     padding: 0 32px 0 12px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     border: 1px solid var(--bd);
     background: var(--bg-el);
     color: var(--tx1);
@@ -115,9 +115,9 @@
   }
 
   /* Health left rail (inset box-shadow per QA-card pattern) + 4% bg tint */
-  .mon-card--health-red    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-md); background: rgba(239,68,68,.04); }
-  .mon-card--health-amber  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-md); background: rgba(245,158,11,.04); }
-  .mon-card--health-green  { box-shadow: inset 6px 0 0 var(--green), var(--sh-md); background: rgba(34,197,94,.04); }
+  .mon-card--health-red    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-md); background: var(--red-card-bg); }
+  .mon-card--health-amber  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-md); background: var(--amber-card-bg); }
+  .mon-card--health-green  { box-shadow: inset 6px 0 0 var(--green), var(--sh-md); background: var(--green-card-bg); }
   .mon-card--health-gray   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-md); background: var(--bg-el); }
   a.mon-card--health-red:hover    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-lg); }
   a.mon-card--health-amber:hover  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-lg); }
@@ -248,7 +248,7 @@
     gap: 6px;
     min-height: 44px;
     padding: 0 14px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     border: 1px solid var(--bd);
     background: var(--bg-el);
     color: var(--tx2);
@@ -280,9 +280,9 @@
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    border-radius: 8px;
-    background: rgba(239,68,68,.08);
-    border: 1px solid rgba(239,68,68,.2);
+    border-radius: var(--radius);
+    background: var(--red-bg-md);
+    border: 1px solid var(--red-bd);
     color: var(--red-text);
     font-size: 13px;
   }
@@ -301,7 +301,7 @@
   .mon-card--loading .mon-skel:nth-of-type(4) { grid-area: s4; }
   .mon-skel {
     height: 14px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: linear-gradient(90deg, var(--bg-el) 0%, var(--bg-alt) 50%, var(--bg-el) 100%);
     background-size: 200% 100%;
     animation: chip-shimmer 1.4s ease-in-out infinite;
@@ -376,9 +376,9 @@
   .mon-row:hover .mon-chev { color: var(--tx1); }
 
   /* Subtle row tint by health */
-  .mon-row--red    { background: rgba(239,68,68,.025); }
-  .mon-row--amber  { background: rgba(245,158,11,.025); }
-  .mon-row--green  { background: rgba(34,197,94,.015); }
+  .mon-row--red    { background: var(--red-tint); }
+  .mon-row--amber  { background: var(--amber-tint); }
+  .mon-row--green  { background: var(--green-tint); }
   .mon-row--gray   { }
 
   .mon-td {
