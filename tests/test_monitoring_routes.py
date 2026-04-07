@@ -246,21 +246,17 @@ async def test_refresh_endpoint_contains_client_names(client):
         assert name in text, f"Client '{name}' missing from refresh response"
 
 
-async def test_refresh_clears_cache_timestamps(client):
-    """POST /api/monitoring/refresh clears cache timestamps (invalidate_all)."""
-    from app.services.monitoring_cache import _ts, should_refresh
-    import time
+async def test_refresh_returns_all_clients(client):
+    """POST /api/monitoring/refresh returns 200 with all 9 client cards.
 
-    # Seed cache with a fresh timestamp so should_refresh=False
-    with __import__("app.services.monitoring_cache", fromlist=["_lock", "_ts"])._lock:
-        _ts["SwishFunding"] = time.time()
-
-    assert not should_refresh("SwishFunding"), "Pre-condition: timestamp should be fresh"
-
-    # Refresh should invalidate all
-    await client.post("/api/monitoring/refresh")
-
-    assert should_refresh("SwishFunding"), "After refresh, should_refresh should be True"
+    Verifies the new contract: the refresh endpoint actually fetches
+    (or in mock mode returns fixture data) and renders all client cards.
+    """
+    response = await client.post("/api/monitoring/refresh")
+    assert response.status_code == 200
+    text = response.text
+    for name in ALL_CLIENT_NAMES:
+        assert name in text, f"Client '{name}' missing from refresh response"
 
 
 # ---------------------------------------------------------------------------

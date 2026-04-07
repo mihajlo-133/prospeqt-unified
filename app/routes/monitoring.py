@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.services.monitoring_cache import get_all_monitoring_data, invalidate_all
+from app.services.monitoring_poller import refresh_all_clients_sync
 from app.services.monitoring_view import (
     SORT_OPTIONS,
     TABLE_SORT_OPTIONS,
@@ -206,7 +207,12 @@ async def monitoring_drill_down(request: Request, slug: str):
 
 @router.post("/api/monitoring/refresh", response_class=HTMLResponse)
 async def monitoring_refresh(request: Request, sort: str = "status"):
-    invalidate_all()
+    # Re-fetch all clients synchronously so the response contains fresh data.
+    # refresh_all_clients_sync() fans out via asyncio.gather, reusing
+    # _refresh_one_client, so dispatch logic stays in one place.
+    # No scheduler reschedule needed: coalesce=True + max_instances=1 means
+    # the next 60s poll tick will see nothing stale and skip naturally.
+    await refresh_all_clients_sync()
     sort = normalize_sort(sort)
     data = get_all_monitoring_data()
     cards = _build_card_views(data, sort)

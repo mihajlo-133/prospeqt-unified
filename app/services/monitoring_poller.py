@@ -53,6 +53,16 @@ DEFAULT_INTERVAL_SECONDS = 60
 # ---------------------------------------------------------------------------
 
 _http_client: httpx.AsyncClient | None = None
+
+#: Reference to the scheduler so routes can query job state if needed.
+#: Set in `init_monitoring_poller`, never used for reschedule (coalesce=True
+#: + max_instances=1 means the next 60s tick will see nothing stale and skip).
+_scheduler: AsyncIOScheduler | None = None
+
+
+def get_scheduler() -> AsyncIOScheduler | None:
+    """Return the scheduler reference. None before init_monitoring_poller()."""
+    return _scheduler
 #: Tracks in-flight Phase 2 backfill tasks so shutdown can await them. Using
 #: a set (not a list) because we add/discard on create/finish.
 _backfill_tasks: set[asyncio.Task] = set()
@@ -158,6 +168,32 @@ async def _phase2_backfill(
 
 
 # ---------------------------------------------------------------------------
+# Manual sync refresh helper (called from POST /api/monitoring/refresh)
+# ---------------------------------------------------------------------------
+
+async def refresh_all_clients_sync() -> None:
+    """Synchronously fan out fetches across every monitoring client and await all.
+
+    Called by the manual refresh route so users get fresh data immediately.
+    Reuses _refresh_one_client so dispatch logic stays in one place.
+
+    No scheduler reschedule needed: coalesce=True + max_instances=1 means
+    the next 60s poll tick will see nothing stale (everything just refreshed)
+    and will skip. This avoids any scheduler manipulation from within a
+    request handler.
+    """
+    if cache.is_mock_mode():
+        # In mock mode there's nothing to fetch; fixture data is already fresh.
+        return
+
+    entries = list_monitoring_workspaces()
+    await asyncio.gather(
+        *(_refresh_one_client(e) for e in entries),
+        return_exceptions=True,
+    )
+
+
+# ---------------------------------------------------------------------------
 # The scheduler job itself
 # ---------------------------------------------------------------------------
 
@@ -203,7 +239,8 @@ def init_monitoring_poller(scheduler: AsyncIOScheduler) -> None:
     Also creates the shared `httpx.AsyncClient` and calls `cache.init_cache()`
     to wire the config-save hook.
     """
-    global _http_client
+    global _http_client, _scheduler
+    _scheduler = scheduler
     if _http_client is None:
         # Shared client for all monitoring HTTP. 30s total timeout per call,
         # 10s connect. HTTP/2 keeps per-workspace connection pools warm.
@@ -282,8 +319,10 @@ __all__ = [
     "JOB_ID",
     "DEFAULT_INTERVAL_SECONDS",
     "refresh_stale_monitoring",
+    "refresh_all_clients_sync",
     "init_monitoring_poller",
     "shutdown_monitoring_poller",
+    "get_scheduler",
     "_refresh_one_client",
     "_phase2_backfill",
     "_set_http_client_for_tests",

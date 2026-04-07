@@ -600,13 +600,25 @@
       bar.classList.remove('reset');
     }
 
-    /* Reset on manual refresh button click (hx-post="/api/monitoring/refresh") */
-    document.body.addEventListener('htmx:afterRequest', function (evt) {
-      var path = evt.detail.pathInfo && evt.detail.pathInfo.requestPath || '';
-      if (path.indexOf('/api/monitoring/refresh') !== -1) {
-        restartCountdown();
+    /* Disable refresh button during request to prevent double-click */
+    document.body.addEventListener('htmx:beforeRequest', function (evt) {
+      var elt = evt.detail.elt;
+      if (elt && elt.getAttribute && elt.getAttribute('hx-post') === '/api/monitoring/refresh') {
+        elt.disabled = true;
       }
     });
+
+    /* Re-enable refresh button after request completes (success or error) */
+    function _reenableRefreshBtn(evt) {
+      var elt = evt.detail.elt;
+      if (elt && elt.getAttribute && elt.getAttribute('hx-post') === '/api/monitoring/refresh') {
+        elt.disabled = false;
+        restartCountdown();
+      }
+    }
+    document.body.addEventListener('htmx:afterRequest', _reenableRefreshBtn);
+    document.body.addEventListener('htmx:responseError', _reenableRefreshBtn);
+    document.body.addEventListener('htmx:sendError', _reenableRefreshBtn);
 
     /* Reset on auto-refresh completion (every 300s HTMX trigger on cards-partial or table-partial) */
     document.body.addEventListener('htmx:afterSwap', function (evt) {
