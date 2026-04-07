@@ -32,9 +32,14 @@ jobs:
           status=$(echo "$response" | tail -n1)
 
           echo "HTTP $status"
-          echo "$body" | python3 -m json.tool
+          echo "$body" | python3 -m json.tool 2>/dev/null || echo "$body"
 
-          if [ "$status" != "200" ] && [ "$status" != "201" ]; then
-            echo "Deploy trigger failed"
-            exit 1
-          fi
+          case "$status" in
+            200|201|202)
+              echo "Deploy queued successfully"
+              ;;
+            *)
+              echo "Deploy trigger failed (HTTP $status)"
+              exit 1
+              ;;
+          esac
