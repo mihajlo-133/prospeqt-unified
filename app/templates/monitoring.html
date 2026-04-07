@@ -151,13 +151,14 @@
   /* Card container — 3-column zone grid on tablet+ */
   .mon-card {
     display: grid;
-    grid-template-columns: minmax(160px, 1.1fr) 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
     grid-template-areas:
-      "tl tm tr"
-      "tl bl br"
-      "action action action";
-    gap: 16px 20px;
+      "tl tl"
+      "tm tr"
+      "bl br"
+      "action action";
+    gap: 14px 18px;
     padding: 20px 22px;
     background: var(--bg-el);
     border: 1px solid var(--bd);
@@ -185,24 +186,34 @@
   a.mon-card--health-gray:hover   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-lg); }
 
   /* Zones */
-  .mon-card-zone-tl { grid-area: tl; display: flex; flex-direction: column; gap: 6px; }
+  .mon-card-zone-tl {
+    grid-area: tl;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--bd);
+  }
   .mon-card-zone-tm { grid-area: tm; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .mon-card-zone-tr { grid-area: tr; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .mon-card-zone-bl { grid-area: bl; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .mon-card-zone-br { grid-area: br; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .mon-card-action  { grid-area: action; display: flex; justify-content: flex-end; }
 
-  /* Mobile layout — stack zones into 2 columns under identity */
-  @media (max-width: 639px) {
+  /* Mobile layout — single column for everything (zones stack vertically) */
+  @media (max-width: 479px) {
     .mon-card {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       grid-template-areas:
-        "tl tl"
-        "tm tr"
-        "bl br"
-        "action action";
-      gap: 14px 16px;
-      padding: 18px 18px;
+        "tl"
+        "tm"
+        "tr"
+        "bl"
+        "br"
+        "action";
+      gap: 14px;
+      padding: 18px;
     }
   }
 
@@ -236,7 +247,7 @@
 
   /* Status pill reuses .pill / .pill-g/.pill-a/.pill-r from base.html.
      Just need self-alignment + spacing inside the card. */
-  .mon-card-zone-tl .pill { align-self: flex-start; margin-top: 2px; }
+  .mon-card-zone-tl .pill { align-self: center; }
 
   .mon-card-camps {
     font-family: 'Inter', sans-serif;
