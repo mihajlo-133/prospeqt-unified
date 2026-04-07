@@ -215,6 +215,10 @@ def test_sent_today_matches_old_dashboard_baseline(page: Page, live_server_url: 
         for client in CLIENTS_TO_CHECK:
             old = old_values[client]
             new = new_values[client]
+            if new is None:
+                # Row was in loading/error state — treat as a failure in live mode
+                failures.append(f"{client}: row was loading/error (no sent_today readable)")
+                continue
             if old == 0 and new == 0:
                 continue
             diff_pct = abs(new - old) / old * 100 if old != 0 else 100.0
@@ -228,10 +232,13 @@ def test_sent_today_matches_old_dashboard_baseline(page: Page, live_server_url: 
             + "\n".join(failures)
         )
     else:
-        # In mock mode we can't compare against live data — just verify selectors work
-        assert new_values, "No sent_today values extracted from mock dashboard"
+        # In mock mode we can't compare against live data — just verify all row slugs
+        # are present in the DOM (even if some are still loading).
+        readable = {k: v for k, v in new_values.items() if v is not None}
+        assert new_values, "No rows found in mock dashboard table"
         print(
-            "\n[mock mode] Selector validation passed. "
-            "Values not compared (mock fixture ≠ live data). "
+            f"\n[mock mode] Row presence validated for {len(new_values)}/{len(CLIENTS_TO_CHECK)} clients. "
+            f"{len(readable)} rows had readable sent_today values. "
+            "Values not compared against live baseline (mock fixture ≠ live data). "
             "Run with TARGET_URL=https://unified-fixes.onrender.com for live comparison."
         )

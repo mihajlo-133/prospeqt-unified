@@ -9,16 +9,11 @@ from app.services.monitoring_cache import get_all_monitoring_data, invalidate_al
 from app.services.monitoring_poller import refresh_all_clients_sync
 from app.services.monitoring_view import (
     SORT_OPTIONS,
-    TABLE_SORT_OPTIONS,
     aggregate_summary,
     build_card_view,
     build_drilldown_view,
-    build_table_row_view,
     normalize_sort,
-    normalize_table_dir,
-    normalize_table_sort,
     sort_clients,
-    sort_clients_table,
 )
 from app.services.registry import get_client, list_monitoring_workspaces
 
@@ -41,16 +36,6 @@ def _build_card_views(data: dict, sort: str) -> list[dict]:
         cards.append(build_card_view(name, entry, workspace_id, slug=slug))
     return cards
 
-
-def _build_table_views(data: dict, sort: str, direction: str) -> list[dict]:
-    sorted_clients = sort_clients_table(data, sort, direction)
-    rows: list[dict] = []
-    for name, entry in sorted_clients:
-        reg = get_client(name)
-        workspace_id = reg.workspace_id if reg else None
-        slug = reg.slug if reg else None
-        rows.append(build_table_row_view(name, entry, workspace_id, slug=slug))
-    return rows
 
 
 def _drilldown_context(slug: str) -> tuple[dict, int]:
@@ -120,33 +105,24 @@ def _drilldown_context(slug: str) -> tuple[dict, int]:
 async def monitoring_overview(
     request: Request,
     sort: str = "status",
-    table_sort: str = "status",
-    table_dir: str = "desc",
 ):
-    """Monitoring overview — cards (mobile) + desktop table."""
+    """Monitoring overview — cards on all viewports."""
     sort = normalize_sort(sort)
-    table_sort = normalize_table_sort(table_sort)
-    table_dir = normalize_table_dir(table_dir)
 
     data = get_all_monitoring_data()
     summary = aggregate_summary(data)
     cards = _build_card_views(data, sort)
-    rows = _build_table_views(data, table_sort, table_dir)
 
     return templates.TemplateResponse(
         request,
         "monitoring.html",
         {
-            "active_tab":         "monitoring",
-            "cards":              cards,
-            "rows":               rows,
-            "summary":            summary,
-            "sort":               sort,
-            "sort_options":       SORT_OPTIONS,
-            "table_sort":         table_sort,
-            "table_dir":          table_dir,
-            "table_sort_options": TABLE_SORT_OPTIONS,
-            "updated_at":         _format_updated_at(),
+            "active_tab":   "monitoring",
+            "cards":        cards,
+            "summary":      summary,
+            "sort":         sort,
+            "sort_options": SORT_OPTIONS,
+            "updated_at":   _format_updated_at(),
         },
     )
 
@@ -163,27 +139,10 @@ async def monitoring_cards_partial(request: Request, sort: str = "status"):
     )
 
 
-@router.get("/api/monitoring/table", response_class=HTMLResponse)
-async def monitoring_table_partial(
-    request: Request,
-    sort: str = "status",
-    dir: str = "desc",
-):
-    """Desktop table partial — used by HTMX sort header swaps + auto-refresh."""
-    sort = normalize_table_sort(sort)
-    direction = normalize_table_dir(dir)
-    data = get_all_monitoring_data()
-    rows = _build_table_views(data, sort, direction)
-    return templates.TemplateResponse(
-        request,
-        "_monitoring_table.html",
-        {"rows": rows, "sort": sort, "direction": direction},
-    )
-
 
 @router.get("/api/monitoring/drilldown/{slug}", response_class=HTMLResponse)
 async def monitoring_drill_down_partial(request: Request, slug: str):
-    """Drill-down partial — shared between card click and table row expand."""
+    """Drill-down partial — triggered by card click."""
     ctx, status_code = _drilldown_context(slug)
     return templates.TemplateResponse(
         request,

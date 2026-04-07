@@ -590,33 +590,3 @@ async def test_drilldown_campaign_groups_rendered(client):
     assert "Paused" in text
 
 
-async def test_table_partial_endpoint(client):
-    """GET /api/monitoring/table returns 200 with table rows, no full page layout."""
-    response = await client.get("/api/monitoring/table")
-    assert response.status_code == 200
-    text = response.text
-    assert "text/html" in response.headers.get("content-type", "")
-    # Must contain table row markup
-    assert "<tr" in text
-    # Must NOT have full page layout (it's a partial)
-    assert "<html" not in text.lower()
-    assert "<body" not in text.lower()
-    # All 9 clients should appear in the table
-    for name in ALL_CLIENT_NAMES:
-        assert name in text, f"Client '{name}' missing from table partial"
-
-
-async def test_table_partial_sort_reply_rate(client):
-    """GET /api/monitoring/table?sort=reply_rate&dir=desc — highest reply rate first."""
-    response = await client.get("/api/monitoring/table?sort=reply_rate&dir=desc")
-    assert response.status_code == 200
-    text = response.text
-    for name in ALL_CLIENT_NAMES:
-        assert name in text, f"Client '{name}' missing from sorted table partial"
-    # MyPlace (reply=1.69%) should appear before HeyReach (reply=0.68%) in desc
-    pos_myplace = text.find("MyPlace")
-    pos_heyreach = text.find("HeyReach")
-    assert pos_myplace > 0 and pos_heyreach > 0
-    assert pos_myplace < pos_heyreach, (
-        "MyPlace (reply 1.69%) should appear before HeyReach (reply 0.68%) in desc sort"
-    )

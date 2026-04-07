@@ -3,7 +3,6 @@
 Tests cover:
   compute_alerts        — 8 alert conditions (3.5.1-3.5.8)
   group_campaigns_by_status — grouping + sort order
-  build_table_row_view  — Instantly vs EmailBison normalization
   build_campaign_row_view — per-campaign EmailBison normalization
 
 All tests are pure Python (no HTTP, no cache, no fixtures required).
@@ -16,7 +15,6 @@ import pytest
 
 from app.services.monitoring_view import (
     build_campaign_row_view,
-    build_table_row_view,
     compute_alerts,
     group_campaigns_by_status,
 )
@@ -266,43 +264,6 @@ def test_group_campaigns_open_defaults():
     assert group_map["paused"]["open"] is True
     assert group_map["completed"]["open"] is False
     assert group_map["other"]["open"] is False
-
-
-# ---------------------------------------------------------------------------
-# build_table_row_view — Instantly client
-# ---------------------------------------------------------------------------
-
-def test_build_table_row_view_instantly():
-    """Instantly client table row: external_url set, in_progress is integer-formatted."""
-    workspace_id = "test-ws-123"
-    entry = _entry(platform="instantly", in_progress=1500)
-    row = build_table_row_view("TestClient", entry, workspace_id=workspace_id, slug="testclient")
-
-    assert row["instantly_url"] is not None
-    assert workspace_id in row["instantly_url"]
-    # in_progress should be a formatted integer string, not "N/A"
-    assert row["in_progress_fmt"] != "N/A"
-    assert "1,500" in row["in_progress_fmt"]
-    assert row["is_error"] is False
-    assert row["is_loading"] is False
-
-
-def test_build_table_row_view_emailbison():
-    """EmailBison client table row: no external_url, in_progress='N/A', first_touch=0, followups=0."""
-    entry = _entry(
-        platform="emailbison",
-        first_touch_today=500,  # should be zeroed
-        followup_today=300,     # should be zeroed
-        in_progress=9999,       # should show "N/A"
-    )
-    row = build_table_row_view("EBClient", entry, workspace_id=None, slug="ebclient")
-
-    assert row["instantly_url"] is None
-    assert row["in_progress_fmt"] == "N/A"
-    assert row["first_touch"] == 0
-    assert row["first_touch_fmt"] == "0"
-    assert row["followups"] == 0
-    assert row["followups_fmt"] == "0"
 
 
 # ---------------------------------------------------------------------------

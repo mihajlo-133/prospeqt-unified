@@ -7,7 +7,7 @@
      Countdown bar (T4 / GOAL 2.5)
      2px bar directly below topbar, Monitoring tab only.
      Must sit OUTSIDE all HTMX swap targets so HTMX partial
-     swaps on cards-partial / table-partial never reset it.
+     swaps on cards-partial never reset it.
      ============================================================ */
   .mon-countdown {
     position: sticky;
@@ -23,7 +23,7 @@
   .mon-countdown-bar {
     height: 100%;
     width: 100%;
-    background: rgba(37, 99, 235, 0.4);   /* --blue at 40% opacity */
+    background: color-mix(in srgb, var(--blue) 40%, transparent);
     transform-origin: left center;
     animation: mon-countdown 300s linear forwards;
   }
@@ -324,6 +324,16 @@
     border-color: var(--blue);
     color: var(--blue);
   }
+  .mon-action-btn--primary {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: var(--bg);
+  }
+  .mon-action-btn--primary:hover {
+    background: var(--blue-h);
+    border-color: var(--blue-h);
+    color: var(--bg);
+  }
 
   /* Error state */
   .mon-card--error {
@@ -368,133 +378,10 @@
   }
   .mon-skel--hero { height: 28px; }
 
-  /* ============================================================
-     Desktop table (Phase 3b) — visible at >= 640px
-     ============================================================ */
-  #table-partial { display: none; }
-  @media (min-width: 640px) {
-    #cards-partial { display: none; }
-    #table-partial { display: block; }
-  }
-
-  .mon-table-wrap {
-    background: var(--bg-el);
-    border: 1px solid var(--bd);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--sh);
-    overflow-x: auto;
-  }
-  .mon-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: var(--tx1);
-    min-width: 1100px;
-  }
-  .mon-table thead th {
-    background: var(--bg-alt);
-    color: var(--tx3);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--bd);
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-    transition: color var(--transition), background var(--transition);
-  }
-  .mon-table thead th:hover { color: var(--tx1); background: var(--bg-hov); }
-  .mon-th--left  { text-align: left; }
-  .mon-th--right { text-align: right; }
-  .mon-th--chev  { width: 32px; cursor: default; }
-  .mon-th--chev:hover { background: var(--bg-alt); }
-  .mon-th.is-active { color: var(--blue); }
-  .mon-th-label { display: inline; }
-  .mon-th-arrow {
-    display: inline-block;
-    margin-left: 4px;
-    font-size: 10px;
-    color: var(--blue);
-  }
-
-  .mon-row { transition: background var(--transition); cursor: pointer; }
-  .mon-row:hover { background: var(--bg-hov); }
-  .mon-row.is-selected {
-    background: var(--bg-sel);
-    box-shadow: inset 4px 0 0 var(--blue);
-  }
-  .mon-row[aria-expanded="true"] .mon-chev {
-    transform: rotate(90deg);
-  }
-  .mon-chev {
-    color: var(--tx3);
-    transition: transform var(--transition), color var(--transition);
-  }
-  .mon-row:hover .mon-chev { color: var(--tx1); }
-
-  /* Subtle row tint by health */
-  .mon-row--red    { background: var(--red-tint); }
-  .mon-row--amber  { background: var(--amber-tint); }
-  .mon-row--green  { background: var(--green-tint); }
-  .mon-row--gray   { }
-
-  .mon-td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--bd);
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-  .mon-td--num { text-align: right; font-variant-numeric: tabular-nums; }
-  .mon-td--client {
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .mon-td--status { text-align: left; }
-  .mon-td--chev   { text-align: center; width: 32px; }
-
-  .mon-row-name {
-    font-weight: 600;
-    color: var(--tx1);
-  }
-  .mon-ext {
-    display: inline-flex;
-    align-items: center;
-    color: var(--tx3);
-    text-decoration: none;
-    transition: color var(--transition);
-  }
-  .mon-ext:hover { color: var(--blue); }
-
-  .mon-row--loading td,
-  .mon-row--error td {
-    padding: 12px 14px;
-    color: var(--tx3);
-  }
-  .mon-row--error td { color: var(--red-text); }
-  .mon-row-error-text { margin-left: 10px; }
-  .mon-row-loading-text { margin-left: 10px; font-style: italic; }
-
-  .mon-row-drilldown td {
-    padding: 0;
-    background: var(--bg-alt);
-    border-bottom: 1px solid var(--bd);
-  }
-  .mon-row-drilldown .mon-dd-slot {
-    padding: 16px 14px;
-  }
-
-  /* Card drilldown inline panel (mobile) */
+  /* Card drilldown inline panel */
   #card-drilldown-target:empty { display: none; }
   #card-drilldown-target {
     margin-top: 16px;
-  }
-  @media (min-width: 640px) {
-    #card-drilldown-target { display: none; }
   }
 </style>
 {% endblock %}
@@ -578,8 +465,7 @@
   </div>
 
   <div id="monitoring-cards">
-    {# Auto-refresh: every 300s. Cards (mobile) and table (desktop) refresh
-       independently — only one is visible at a time per the media query. #}
+    {# Auto-refresh: every 300s. Cards render on all viewports. #}
     <div id="cards-partial"
          hx-get="/api/monitoring/cards"
          hx-trigger="every 300s"
@@ -590,14 +476,6 @@
     </div>
 
     <div id="card-drilldown-target"></div>
-
-    <div id="table-partial"
-         hx-get="/api/monitoring/table?sort={{ table_sort }}&dir={{ table_dir }}"
-         hx-trigger="every 300s"
-         hx-target="this"
-         hx-swap="innerHTML">
-      {% with sort=table_sort, direction=table_dir %}{% include "_monitoring_table.html" %}{% endwith %}
-    </div>
   </div>
 </div>
 {% endblock %}
@@ -636,10 +514,10 @@
     document.body.addEventListener('htmx:responseError', _reenableRefreshBtn);
     document.body.addEventListener('htmx:sendError', _reenableRefreshBtn);
 
-    /* Reset on auto-refresh completion (every 300s HTMX trigger on cards-partial or table-partial) */
+    /* Reset on auto-refresh completion (every 300s HTMX trigger on cards-partial) */
     document.body.addEventListener('htmx:afterSwap', function (evt) {
       var id = evt.target && evt.target.id || '';
-      if (id === 'cards-partial' || id === 'table-partial') {
+      if (id === 'cards-partial') {
         restartCountdown();
       }
     });

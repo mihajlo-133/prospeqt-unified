@@ -49,70 +49,65 @@
        data-client="{{ c.name }}"
        data-status="{{ c.status }}">
 
-      {# Upper-left: identity, platform, status pill, campaign counts #}
+      {# ── Zone 1 (top row) ─────────────────────────────────────────────── #}
+
+      {# LEFT: identity — name, platform badge, status pill, campaign counts #}
       <div class="mon-card-zone-tl">
         <div class="mon-card-name">{{ c.name }}</div>
         <div class="mon-card-platform">
           <span class="platform-dot platform-dot--{{ c.platform }}" aria-hidden="true"></span>
-          {{ c.platform }}
+          {{ c.platform | upper }}
         </div>
         <span class="pill {{ c.pill_class }}">{{ c.status_label }}</span>
         <div class="mon-card-camps">
-          {{ c.active_n }} active &middot; {{ c.paused_n }} paused &middot; {{ c.completed_n }} completed
+          {{ c.active_n }} active &middot; {{ c.paused_n }} paused
         </div>
       </div>
 
-      {# Upper-mid: SENT TODAY #}
+      {# MIDDLE: SENT TODAY — hero number + 1st Touch / Follow-ups breakdown #}
       <div class="mon-card-zone-tm">
         <div class="text-meta">SENT TODAY</div>
         <div class="mon-hero mon-hero--lg {{ c.sent_class }}">{{ c.sent_today_fmt }}</div>
         <div class="mon-zone-detail">1st Touch: {{ c.first_touch }} &middot; Follow-ups: {{ c.followups }}</div>
-        <div class="mon-zone-trend">
-          <span class="trend-arrow {{ c.sent_trend_class }}" aria-hidden="true">{{ c.sent_trend_glyph }}</span>
-          <span>{{ c.sent_vs_avg_text }}</span>
-        </div>
       </div>
 
-      {# Upper-right: NOT CONTACTED #}
+      {# RIGHT: NOT CONTACTED — hero number + runway #}
       <div class="mon-card-zone-tr">
         <div class="text-meta">NOT CONTACTED</div>
         <div class="mon-hero mon-hero--sm {{ c.runway_class }}">{{ c.not_contacted_fmt }}</div>
         <div class="mon-zone-detail">{{ c.runway_text }}</div>
       </div>
 
-      {# Lower-left: REPLY RATE #}
+      {# ── Zone 2 (middle row) ──────────────────────────────────────────── #}
+
+      {# LEFT: REPLY RATE — percentage only #}
       <div class="mon-card-zone-bl">
         <div class="text-meta">REPLY RATE</div>
         <div class="mon-hero mon-hero--md {{ c.reply_rate_class }}">{{ c.reply_rate_today_fmt }}</div>
-        <div class="mon-zone-trend">
-          <span class="trend-arrow {{ c.reply_trend_class }}" aria-hidden="true">{{ c.reply_trend_glyph }}</span>
-          <span>7d avg: {{ c.reply_rate_7d_fmt }} &middot; {{ c.replies_today }} replied &middot; {{ c.opps_today }} opps</span>
-        </div>
       </div>
 
-      {# Lower-right: BOUNCE RATE #}
+      {# RIGHT: BOUNCE RATE — percentage + status indicator #}
       <div class="mon-card-zone-br">
         <div class="text-meta">BOUNCE RATE</div>
         <div class="mon-hero mon-hero--md {{ c.bounce_class }}">{{ c.bounce_rate_fmt }}</div>
         <div class="mon-zone-trend">
           <span class="bounce-dot bounce-dot--{{ c.bounce_health }}" aria-hidden="true"></span>
-          <span>{{ c.bounce_label }} &middot; {{ c.in_progress_fmt }} in progress</span>
+          <span>{{ c.bounce_label }}</span>
         </div>
       </div>
 
-      {# Action row — Instantly only #}
+      {# ── Zone 3 (action row) — Instantly only ─────────────────────────── #}
       {% if c.instantly_url %}
       <div class="mon-card-action">
-        <a class="mon-action-btn"
+        <a class="mon-action-btn mon-action-btn--primary"
            href="{{ c.instantly_url }}"
            target="_blank"
            rel="noopener"
            onclick="event.stopPropagation()">
           View in Instantly
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" y1="14" x2="21" y2="3"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
         </a>
       </div>
