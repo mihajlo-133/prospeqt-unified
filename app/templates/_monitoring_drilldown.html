@@ -1,0 +1,480 @@
+{# Monitoring drill-down partial — Phase 3b T3-T6.
+
+   Self-contained: NO {% extends %}, NO {% block %}. Renders a single
+   <div class="dd-shell">…</div> + <style>. Suitable for HTMX swap target,
+   inline panel, or wrapped by a full-page route.
+
+   Inputs (data contract):
+     name              str
+     slug              str
+     not_found         bool
+     entry             dict | None        full ClientData
+     card              dict | None        view-model from build_card_view (hero zones)
+     platform          str | None
+     workspace_id      str | None
+     instantly_url     str | None
+     updated_at        str
+     error_msg         str | None
+     # Phase 3b additions:
+     alerts            list[{level, message}]
+     kpis              dict (kpi mini-cards view-model)
+     campaign_groups   list[{key,label,count,open,rows}]
+     is_emailbison     bool
+#}
+<div class="dd-shell">
+
+  {% if not_found %}
+    <div class="dd-empty" role="alert">
+      <div class="dd-empty-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h2>Client not found</h2>
+      <p>No monitoring client matches the slug <code>{{ slug }}</code>.</p>
+    </div>
+
+  {% else %}
+
+    {# ---------- Header ---------- #}
+    <div class="dd-header">
+      <div class="dd-header-text">
+        <div class="dd-title">{{ name }}</div>
+        <div class="dd-subtitle">
+          <span class="platform-dot platform-dot--{{ platform }}" aria-hidden="true"></span>
+          {{ platform }}
+          {% if card and card.status_label %}
+            &middot; <span class="pill {{ card.pill_class }}">{{ card.status_label }}</span>
+          {% endif %}
+          &middot; updated {{ updated_at }}
+        </div>
+      </div>
+      {% if instantly_url %}
+        <a class="scan-btn-secondary" href="{{ instantly_url }}" target="_blank" rel="noopener">
+          View in Instantly
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      {% endif %}
+    </div>
+
+    {% if error_msg %}
+      <div class="dd-alert dd-alert--red">
+        <span class="dd-alert-dot"></span>
+        <span>{{ error_msg }}</span>
+      </div>
+    {% endif %}
+
+    {# ---------- Alert boxes (3.5.1-3.5.8) ---------- #}
+    {% if alerts %}
+    <div class="dd-alerts">
+      {% for a in alerts %}
+        <div class="dd-alert dd-alert--{{ a.level }}">
+          <span class="dd-alert-dot"></span>
+          <span>{{ a.message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ---------- KPI mini-cards (3.5.22-3.5.28) ---------- #}
+    {% if kpis %}
+    <div class="dd-kpis">
+
+      <div class="dd-kpi dd-kpi--hero">
+        <div class="text-meta">NOT CONTACTED</div>
+        <div class="mon-hero mon-hero--lg {{ kpis.runway_class }}">{{ kpis.not_contacted_fmt }}</div>
+        <div class="mon-zone-detail">{{ kpis.runway_text }}</div>
+      </div>
+
+      <div class="dd-kpi dd-kpi--hero">
+        <div class="text-meta">IN PROGRESS</div>
+        <div class="mon-hero mon-hero--lg {{ kpis.in_progress_class }}">{{ kpis.in_progress_fmt }}</div>
+        <div class="mon-zone-detail">in progress</div>
+      </div>
+
+      <div class="dd-kpi">
+        <div class="text-meta">SENT TODAY</div>
+        <div class="mon-hero mon-hero--md {{ kpis.sent_class }}">{{ kpis.sent_today_fmt }}</div>
+        <div class="kpi-bar" aria-hidden="true">
+          <div class="kpi-bar-fill {{ kpis.sent_class }}" style="width: {{ kpis.sent_pct }}%;"></div>
+        </div>
+        <div class="mon-zone-detail">target {{ kpis.sent_kpi_fmt }}</div>
+      </div>
+
+      <div class="dd-kpi">
+        <div class="text-meta">1ST TOUCH / FOLLOW-UPS</div>
+        <div class="dd-kpi-pair">
+          <div>
+            <div class="mon-hero mon-hero--md hero--neutral">{{ kpis.first_touch_fmt }}</div>
+            <div class="mon-zone-detail">1st touch</div>
+          </div>
+          <div>
+            <div class="mon-hero mon-hero--md hero--neutral">{{ kpis.followups_fmt }}</div>
+            <div class="mon-zone-detail">follow-ups</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dd-kpi">
+        <div class="text-meta">REPLY RATE</div>
+        <div class="mon-hero mon-hero--md {{ kpis.reply_rate_class }}">{{ kpis.reply_rate_fmt }}</div>
+        <div class="kpi-axis" aria-hidden="true">
+          <div class="kpi-axis-fill {{ kpis.reply_rate_class }}" style="width: {{ kpis.reply_value_pct }}%;"></div>
+          <div class="kpi-axis-target" style="left: {{ kpis.reply_target_pct }}%;"></div>
+        </div>
+        <div class="mon-zone-detail">target {{ kpis.reply_target_fmt }}</div>
+      </div>
+
+      <div class="dd-kpi">
+        <div class="text-meta">REPLIED / OPPS</div>
+        <div class="dd-kpi-pair">
+          <div>
+            <div class="mon-hero mon-hero--md hero--neutral">{{ kpis.replied_fmt }}</div>
+            <div class="mon-zone-detail">7d avg: {{ kpis.avg_replies_7d_fmt }}</div>
+          </div>
+          <div>
+            <div class="mon-hero mon-hero--md hero--neutral">{{ kpis.opps_fmt }}</div>
+            <div class="mon-zone-detail">7d avg: {{ kpis.avg_opps_7d_fmt }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dd-kpi">
+        <div class="text-meta">BOUNCE RATE</div>
+        <div class="mon-hero mon-hero--md {{ kpis.bounce_class }}">{{ kpis.bounce_rate_fmt }}</div>
+        <div class="kpi-axis" aria-hidden="true">
+          <div class="kpi-axis-fill {{ kpis.bounce_class }}" style="width: {{ kpis.bounce_value_pct }}%;"></div>
+          <div class="kpi-axis-target" style="left: {{ kpis.bounce_warn_pct }}%;"></div>
+        </div>
+        <div class="mon-zone-detail">warn {{ kpis.bounce_warn_fmt }}</div>
+      </div>
+
+    </div>
+    {% endif %}
+
+    {# ---------- Campaign sub-table (3.5.9-3.5.21) ---------- #}
+    {% if campaign_groups %}
+    <div class="dd-camps">
+      <div class="dd-camps-title">Campaigns</div>
+      <div class="camp-table-wrap">
+        {% for g in campaign_groups %}
+          {% if g.count > 0 %}
+          <div class="camp-group">
+            <button class="camp-group-toggle" type="button" aria-expanded="{{ 'true' if g.open else 'false' }}" data-group="{{ g.key }}">
+              <span class="camp-group-chev" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+              <span class="camp-group-label">{{ g.label }}</span>
+              <span class="camp-group-count">{{ g.count }}</span>
+            </button>
+            <div class="camp-group-body" {% if not g.open %}hidden{% endif %}>
+              <table class="camp-table">
+                <thead>
+                  <tr>
+                    <th class="left">Campaign</th>
+                    <th class="left">Status</th>
+                    <th class="right">Sent</th>
+                    <th class="right">1st Touch</th>
+                    <th class="right">Follow-ups</th>
+                    <th class="right">Replied</th>
+                    <th class="right">Opps</th>
+                    <th class="right">Reply Rate</th>
+                    <th class="right">Not Contacted</th>
+                    <th class="right">In Progress</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in g.rows %}
+                  <tr>
+                    <td class="left camp-name">{{ r.name }}</td>
+                    <td class="left"><span class="pill {{ r.pill_class }}">{{ r.status_label }}</span></td>
+                    <td class="right">{{ r.sent_today_fmt }}</td>
+                    <td class="right">{{ r.first_touch_fmt }}</td>
+                    <td class="right">{{ r.followups_fmt }}</td>
+                    <td class="right">{{ r.replied_fmt }}</td>
+                    <td class="right">{{ r.opps_fmt }}</td>
+                    <td class="right">{{ r.reply_rate_fmt }}</td>
+                    <td class="right">{{ r.not_contacted_fmt }}</td>
+                    <td class="right">{{ r.in_progress_fmt }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  {% endif %}
+</div>
+
+<style>
+  .dd-shell {
+    padding: 20px 22px;
+    background: var(--bg-el);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sh-md);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .dd-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--bd);
+  }
+  .dd-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--tx1);
+  }
+  .dd-subtitle {
+    font-size: 12px;
+    color: var(--tx2);
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .dd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--tx2);
+  }
+  .dd-empty-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .dd-empty h2 { font-size: 16px; font-weight: 700; color: var(--tx1); margin-bottom: 6px; }
+  .dd-empty p  { font-size: 13px; }
+
+  /* Alerts */
+  .dd-alerts { display: flex; flex-direction: column; gap: 8px; }
+  .dd-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    line-height: 1.4;
+    border: 1px solid transparent;
+  }
+  .dd-alert-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dd-alert--red {
+    background: rgba(239,68,68,.06);
+    border-color: rgba(239,68,68,.2);
+    color: var(--red-text);
+  }
+  .dd-alert--red .dd-alert-dot { background: var(--red); }
+  .dd-alert--amber {
+    background: rgba(245,158,11,.06);
+    border-color: rgba(245,158,11,.2);
+    color: var(--amber-text);
+  }
+  .dd-alert--amber .dd-alert-dot { background: var(--amber); }
+
+  /* KPI mini-cards */
+  .dd-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media (min-width: 900px) {
+    .dd-kpis {
+      grid-template-columns: repeat(7, 1fr);
+    }
+    .dd-kpi--hero { grid-column: span 1; }
+  }
+  .dd-kpi {
+    background: var(--bg-alt);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .dd-kpi-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .kpi-bar {
+    height: 6px;
+    background: var(--bd);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .kpi-bar-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 3px;
+    transition: width var(--transition);
+  }
+  .kpi-bar-fill.hero--green   { background: var(--green); }
+  .kpi-bar-fill.hero--amber   { background: var(--amber); }
+  .kpi-bar-fill.hero--red     { background: var(--red); }
+  .kpi-bar-fill.hero--neutral { background: var(--blue); }
+
+  .kpi-axis {
+    position: relative;
+    height: 6px;
+    background: var(--bd);
+    border-radius: 3px;
+    margin-top: 2px;
+  }
+  .kpi-axis-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--blue);
+    border-radius: 3px;
+  }
+  .kpi-axis-fill.hero--green { background: var(--green); }
+  .kpi-axis-fill.hero--amber { background: var(--amber); }
+  .kpi-axis-fill.hero--red   { background: var(--red); }
+  .kpi-axis-target {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 0;
+    border-left: 2px dashed var(--tx2);
+  }
+
+  /* Campaign sub-table */
+  .dd-camps-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tx1);
+    margin-bottom: 8px;
+  }
+  .camp-table-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .camp-group {
+    border: 1px solid var(--bd);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-el);
+  }
+  .camp-group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border: none;
+    border-bottom: 1px solid var(--bd);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tx1);
+    letter-spacing: .02em;
+  }
+  .camp-group-toggle[aria-expanded="false"] { border-bottom-color: transparent; }
+  .camp-group-toggle:hover { background: var(--bg-hov); }
+  .camp-group-chev {
+    display: inline-flex;
+    align-items: center;
+    transition: transform var(--transition);
+    color: var(--tx2);
+  }
+  .camp-group-toggle[aria-expanded="true"] .camp-group-chev {
+    transform: rotate(90deg);
+  }
+  .camp-group-label { flex: 1; text-align: left; }
+  .camp-group-count {
+    color: var(--tx3);
+    font-weight: 500;
+  }
+  .camp-group-body { overflow-x: auto; }
+
+  .camp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    min-width: 720px;
+  }
+  .camp-table th, .camp-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--bd);
+    white-space: nowrap;
+  }
+  .camp-table th {
+    color: var(--tx3);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: .06em;
+    background: var(--bg-el);
+  }
+  .camp-table td { color: var(--tx1); }
+  .camp-table tbody tr:last-child td { border-bottom: none; }
+  .camp-table .left  { text-align: left; }
+  .camp-table .right { text-align: right; }
+  .camp-table .camp-name { font-weight: 500; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Reused pill—blue variant for completed status */
+  .pill-blue {
+    background: var(--blue-bg);
+    color: var(--blue);
+    border: 1px solid rgba(37,99,235,.2);
+  }
+</style>
+
+<script>
+(function() {
+  // Wire campaign group toggles. Re-run safely after every HTMX swap because
+  // we mark each button with a flag attribute.
+  var buttons = document.querySelectorAll('.camp-group-toggle:not([data-init])');
+  buttons.forEach(function(btn) {
+    btn.setAttribute('data-init', '1');
+    btn.addEventListener('click', function() {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      var body = btn.nextElementSibling;
+      if (body) {
+        if (open) body.setAttribute('hidden', ''); else body.removeAttribute('hidden');
+      }
+    });
+  });
+})();
+</script>

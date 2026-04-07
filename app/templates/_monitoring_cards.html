@@ -41,6 +41,10 @@
     {# ----- Live state ----- #}
     {% else %}
     <a href="/monitoring/{{ c.slug }}"
+       hx-get="/api/monitoring/drilldown/{{ c.slug }}"
+       hx-target="#card-drilldown-target"
+       hx-swap="innerHTML"
+       hx-push-url="false"
        class="mon-card mon-card--health-{{ c.health }}"
        data-client="{{ c.name }}"
        data-status="{{ c.status }}">

@@ -1,0 +1,175 @@
+{# Desktop monitoring table partial — Phase 3b T1/T2.
+
+   Inputs:
+     rows       — list[dict] from build_table_row_view()
+     sort       — current sort key
+     direction  — "asc" or "desc"
+
+   Templates do NOT compute colors / N/A handling — view-model is pre-baked.
+#}
+<div class="mon-table-wrap">
+  <table class="mon-table" role="table">
+    <thead>
+      <tr>
+        {% set cols = [
+          ('name',          'Client',        'left'),
+          ('sent_today',    'Sent',          'right'),
+          ('first_touch',   '1st Touch',     'right'),
+          ('followups',     'Follow-ups',    'right'),
+          ('reply_rate',    'Reply Rate',    'right'),
+          ('replied',       'Replied',       'right'),
+          ('opps',          'Opps',          'right'),
+          ('bounce_rate',   'Bounce Rate',   'right'),
+          ('not_contacted', 'Not Contacted', 'right'),
+          ('in_progress',   'In Progress',   'right'),
+          ('status',        'Status',        'left'),
+        ] %}
+        {% for key, label, align in cols %}
+          {% set is_active = (sort == key) %}
+          {% set next_dir = 'asc' if (is_active and direction == 'desc') else ('desc' if is_active else ('asc' if key == 'name' else 'desc')) %}
+          <th class="mon-th mon-th--{{ align }}{% if is_active %} is-active{% endif %}"
+              hx-get="/api/monitoring/table?sort={{ key }}&dir={{ next_dir }}"
+              hx-target="#table-partial"
+              hx-swap="innerHTML"
+              role="columnheader"
+              tabindex="0">
+            <span class="mon-th-label">{{ label }}</span>
+            {% if is_active %}
+              <span class="mon-th-arrow" aria-hidden="true">{{ '▲' if direction == 'asc' else '▼' }}</span>
+            {% endif %}
+          </th>
+        {% endfor %}
+        <th class="mon-th mon-th--chev" aria-hidden="true"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in rows %}
+        {% if c.is_loading %}
+          <tr class="mon-row mon-row--loading" data-slug="{{ c.slug }}" aria-busy="true">
+            <td colspan="12">
+              <span class="mon-row-name">{{ c.name }}</span>
+              <span class="mon-row-loading-text">Loading…</span>
+            </td>
+          </tr>
+        {% elif c.is_error %}
+          <tr class="mon-row mon-row--error" data-slug="{{ c.slug }}" role="alert">
+            <td colspan="12">
+              <span class="mon-row-name">{{ c.name }}</span>
+              <span class="mon-row-error-text">{{ c.error_msg }}</span>
+            </td>
+          </tr>
+        {% else %}
+          <tr class="mon-row mon-row--{{ c.health }}"
+              data-slug="{{ c.slug }}"
+              hx-get="/api/monitoring/drilldown/{{ c.slug }}"
+              hx-target="#dd-{{ c.slug }} > td > div"
+              hx-swap="innerHTML"
+              hx-trigger="click"
+              aria-expanded="false"
+              role="button"
+              tabindex="0">
+            <td class="mon-td mon-td--client">
+              <span class="platform-dot platform-dot--{{ c.platform }}" aria-hidden="true"></span>
+              <span class="mon-row-name">{{ c.name }}</span>
+              {% if c.instantly_url %}
+                <a class="mon-ext"
+                   href="{{ c.instantly_url }}"
+                   target="_blank"
+                   rel="noopener"
+                   onclick="event.stopPropagation()"
+                   aria-label="Open {{ c.name }} in Instantly">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              {% endif %}
+            </td>
+            <td class="mon-td mon-td--num">
+              {{ c.sent_today_fmt }}
+              <span class="trend-arrow {{ c.sent_trend_class }}" aria-hidden="true">{{ c.sent_trend_glyph }}</span>
+            </td>
+            <td class="mon-td mon-td--num">{{ c.first_touch_fmt }}</td>
+            <td class="mon-td mon-td--num">{{ c.followups_fmt }}</td>
+            <td class="mon-td mon-td--num">
+              {{ c.reply_rate_fmt }}
+              <span class="trend-arrow {{ c.reply_trend_class }}" aria-hidden="true">{{ c.reply_trend_glyph }}</span>
+            </td>
+            <td class="mon-td mon-td--num">{{ c.replied_fmt }}</td>
+            <td class="mon-td mon-td--num">
+              {{ c.opps_fmt }}
+              <span class="trend-arrow {{ c.opps_trend_class }}" aria-hidden="true">{{ c.opps_trend_glyph }}</span>
+            </td>
+            <td class="mon-td mon-td--num">{{ c.bounce_rate_fmt }}</td>
+            <td class="mon-td mon-td--num">{{ c.not_contacted_fmt }}</td>
+            <td class="mon-td mon-td--num">{{ c.in_progress_fmt }}</td>
+            <td class="mon-td mon-td--status">
+              <span class="pill {{ c.pill_class }}">{{ c.status_label }}</span>
+            </td>
+            <td class="mon-td mon-td--chev" aria-hidden="true">
+              <svg class="mon-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </td>
+          </tr>
+          <tr class="mon-row-drilldown" id="dd-{{ c.slug }}" hidden>
+            <td colspan="12"><div class="mon-dd-slot"></div></td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+(function() {
+  // Only run once even if the partial swaps in repeatedly
+  if (window.__monTableInit) return;
+  window.__monTableInit = true;
+
+  var tableRoot = document.getElementById('table-partial');
+  if (!tableRoot) tableRoot = document.body;
+
+  function clearOpen() {
+    document.querySelectorAll('.mon-row.is-selected').forEach(function(r) {
+      r.classList.remove('is-selected');
+      r.setAttribute('aria-expanded', 'false');
+      var slug = r.getAttribute('data-slug');
+      var dd = document.getElementById('dd-' + slug);
+      if (dd) {
+        dd.setAttribute('hidden', '');
+        var slot = dd.querySelector('.mon-dd-slot');
+        if (slot) slot.innerHTML = '';
+      }
+    });
+  }
+
+  document.body.addEventListener('htmx:beforeRequest', function(evt) {
+    var el = evt.detail.elt;
+    if (!el || !el.classList || !el.classList.contains('mon-row')) return;
+    if (el.classList.contains('mon-row--loading') || el.classList.contains('mon-row--error')) return;
+    var slug = el.getAttribute('data-slug');
+    var alreadyOpen = el.classList.contains('is-selected');
+    clearOpen();
+    if (alreadyOpen) {
+      // toggle off — cancel the request
+      evt.preventDefault();
+      return;
+    }
+    el.classList.add('is-selected');
+    el.setAttribute('aria-expanded', 'true');
+    var dd = document.getElementById('dd-' + slug);
+    if (dd) dd.removeAttribute('hidden');
+  });
+
+  // Keyboard support — Enter/Space on focused row
+  document.body.addEventListener('keydown', function(evt) {
+    if (evt.key !== 'Enter' && evt.key !== ' ') return;
+    var el = evt.target;
+    if (!el || !el.classList || !el.classList.contains('mon-row')) return;
+    evt.preventDefault();
+    el.click();
+  });
+})();
+</script>

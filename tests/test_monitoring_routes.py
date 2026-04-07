@@ -486,3 +486,141 @@ async def test_drilldown_emailbison_clients_no_instantly_link(client):
         assert "analytics.instantly.ai" not in text, (
             f"/monitoring/{slug}: EB client should not have an analytics.instantly.ai link"
         )
+
+
+# ---------------------------------------------------------------------------
+# GET /api/monitoring/drilldown/{slug} — drill-down partial (Phase 3b T7)
+# ---------------------------------------------------------------------------
+
+async def test_drilldown_partial_instantly_client_ok(client):
+    """Partial returns 200, contains client name + Instantly link, no full page layout."""
+    response = await client.get("/api/monitoring/drilldown/myplace")
+    assert response.status_code == 200
+    text = response.text
+    assert "MyPlace" in text
+    # Instantly clients have workspace_id → View in Instantly present
+    assert "View in Instantly" in text
+    # Partial must NOT have full page chrome
+    assert "<html" not in text.lower()
+    assert "<body" not in text.lower()
+
+
+async def test_drilldown_partial_emailbison_client_ok(client):
+    """EmailBison partial: N/A for in_progress, no Instantly link, first_touch=0."""
+    response = await client.get("/api/monitoring/drilldown/rankzero")
+    assert response.status_code == 200
+    text = response.text
+    assert "RankZero" in text
+    # EB clients: in_progress shows "N/A"
+    assert "N/A" in text
+    # No Instantly analytics link
+    assert "View in Instantly" not in text
+    assert "analytics.instantly.ai" not in text
+    # Partial only, no layout chrome
+    assert "<html" not in text.lower()
+    assert "<body" not in text.lower()
+
+
+async def test_drilldown_partial_not_found(client):
+    """Unknown slug → 404, body contains not-found indicator."""
+    response = await client.get("/api/monitoring/drilldown/does-not-exist")
+    assert response.status_code == 404
+    # The partial should contain a friendly not-found message (no layout)
+    assert "not found" in response.text.lower() or "404" in response.text
+
+
+async def test_drilldown_partial_error_state(client):
+    """Error-state client (Prosperly) renders a friendly error message in the partial."""
+    response = await client.get("/api/monitoring/drilldown/prosperly")
+    assert response.status_code == 200
+    text = response.text
+    assert "Prosperly" in text
+    # Should show friendly error, not Python traceback
+    assert "Traceback" not in text
+    assert "Exception" not in text
+    # Must be a partial, not a full page
+    assert "<html" not in text.lower()
+
+
+async def test_drilldown_alerts_pool_critical(client, monkeypatch):
+    """Client with pool_days_remaining < 3 renders 'critically low' red alert.
+
+    Injects a pool-critical fixture entry for SwishFunding by patching the
+    module-level _mock_fixture cache so _get_all_mock() picks it up.
+    """
+    import copy
+    import json
+    from pathlib import Path
+    from app.services import monitoring_cache
+
+    # Load real fixture as base, then override SwishFunding with pool-critical values
+    base_fixture = json.loads(
+        (Path(__file__).parent / "fixtures" / "mock_monitoring_data.json").read_text()
+    )
+    patched = copy.deepcopy(base_fixture)
+    # not_contacted=1000, avg_sent_7d=1000 → pool=1.0 days (< 3 → critical)
+    patched["SwishFunding"]["not_contacted"] = 1000
+    patched["SwishFunding"]["avg_sent_7d"] = 1000.0
+
+    # Patch _mock_fixture so _load_mock_fixture() returns our modified copy
+    monkeypatch.setattr(monitoring_cache, "_mock_fixture", patched)
+
+    response = await client.get("/api/monitoring/drilldown/swishfunding")
+    assert response.status_code == 200
+    text = response.text
+    assert "critically low" in text.lower(), (
+        f"Expected 'critically low' in drilldown for pool_days=1.0, got:\n{text[:500]}"
+    )
+
+
+async def test_drilldown_alerts_bounce_critical(client):
+    """Kayse has bounce_rate=6.4 > 5.0 → 'critically high' bounce alert in partial."""
+    response = await client.get("/api/monitoring/drilldown/kayse")
+    assert response.status_code == 200
+    text = response.text
+    # Kayse bounce=6.4 → bounce_critical alert fires
+    assert "critically high" in text.lower(), (
+        f"Expected bounce critical alert for Kayse (bounce=6.4), got:\n{text[:500]}"
+    )
+
+
+async def test_drilldown_campaign_groups_rendered(client):
+    """Drill-down partial renders campaign group labels (Active, Paused)."""
+    response = await client.get("/api/monitoring/drilldown/swishfunding")
+    assert response.status_code == 200
+    text = response.text
+    # SwishFunding has 4 active + 1 paused campaign → both group headers present
+    assert "Active" in text
+    assert "Paused" in text
+
+
+async def test_table_partial_endpoint(client):
+    """GET /api/monitoring/table returns 200 with table rows, no full page layout."""
+    response = await client.get("/api/monitoring/table")
+    assert response.status_code == 200
+    text = response.text
+    assert "text/html" in response.headers.get("content-type", "")
+    # Must contain table row markup
+    assert "<tr" in text
+    # Must NOT have full page layout (it's a partial)
+    assert "<html" not in text.lower()
+    assert "<body" not in text.lower()
+    # All 9 clients should appear in the table
+    for name in ALL_CLIENT_NAMES:
+        assert name in text, f"Client '{name}' missing from table partial"
+
+
+async def test_table_partial_sort_reply_rate(client):
+    """GET /api/monitoring/table?sort=reply_rate&dir=desc — highest reply rate first."""
+    response = await client.get("/api/monitoring/table?sort=reply_rate&dir=desc")
+    assert response.status_code == 200
+    text = response.text
+    for name in ALL_CLIENT_NAMES:
+        assert name in text, f"Client '{name}' missing from sorted table partial"
+    # MyPlace (reply=1.69%) should appear before HeyReach (reply=0.68%) in desc
+    pos_myplace = text.find("MyPlace")
+    pos_heyreach = text.find("HeyReach")
+    assert pos_myplace > 0 and pos_heyreach > 0
+    assert pos_myplace < pos_heyreach, (
+        "MyPlace (reply 1.69%) should appear before HeyReach (reply 0.68%) in desc sort"
+    )
