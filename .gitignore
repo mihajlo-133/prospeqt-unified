@@ -43,3 +43,13 @@ qa/screenshots/*.png
 
 # Playwright CLI session files
 .playwright-cli/
+
+# Project planning artifacts (not app code)
+.planning/
+GOAL.md
+
+# Runtime config state (written by admin panel, not source)
+dashboard_config.json
+
+# QA utility (not production)
+qa/take_screenshots.py
