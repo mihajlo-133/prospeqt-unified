@@ -25,11 +25,22 @@ def leads_response(fixtures_dir: Path) -> dict:
 
 @pytest.fixture
 def mock_env(monkeypatch):
-    monkeypatch.setenv("WORKSPACE_TESTCLIENT_API_KEY", "test-key-1234")
-    monkeypatch.setenv("WORKSPACE_ANOTHER_WS_API_KEY", "test-key-5678")
+    # Use real client env var names from _CLIENT_DEFS so registry.load_from_env() picks them up
+    monkeypatch.setenv("INSTANTLY_MYPLACE", "test-key-1234")
+    monkeypatch.setenv("INSTANTLY_SWISHFUNDING", "test-key-5678")
     monkeypatch.setenv("ADMIN_PASSWORD", "testpass")
     monkeypatch.setenv("SECRET_KEY", "test-secret")
-    return monkeypatch
+
+    # Initialise monitoring config to factory defaults so routes that call
+    # get_config() work without going through the app lifespan.
+    from app.services import monitoring_config
+    monitoring_config._reset_for_tests()
+    monitoring_config.load_config()
+
+    yield monkeypatch
+
+    # Clean up after each test to avoid cross-test contamination.
+    monitoring_config._reset_for_tests()
 
 
 @pytest.fixture

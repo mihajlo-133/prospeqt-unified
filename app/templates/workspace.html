@@ -203,7 +203,7 @@
 
 {% block content %}
 <div class="breadcrumb-bar">
-  <a href="/">All Workspaces</a>
+  <a href="/qa">All Workspaces</a>
   <span class="breadcrumb-sep">&gt;</span>
   <span class="breadcrumb-current">{{ ws_name }}</span>
 </div>
@@ -213,7 +213,7 @@
   <nav class="ws-sidebar">
     <div class="ws-sidebar-title">Workspaces</div>
     {% for sw in sidebar_workspaces %}
-    <a href="/ws/{{ sw.name }}" class="ws-sidebar-item {{ 'active' if sw.active else '' }}">
+    <a href="/qa/ws/{{ sw.name }}" class="ws-sidebar-item {{ 'active' if sw.active else '' }}">
       {% if sw.scanning %}
       <svg class="sidebar-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
       {% else %}
@@ -229,7 +229,7 @@
     <div class="page-header-row">
       <h1 class="page-title">{{ ws_name }}</h1>
       <button class="scan-btn-secondary"
-              hx-post="/api/scan/ws/{{ ws_name }}"
+              hx-post="/qa/api/scan/ws/{{ ws_name }}"
               hx-target="#campaign-table"
               hx-swap="outerHTML"
               hx-indicator=".ws-scan-spinner">

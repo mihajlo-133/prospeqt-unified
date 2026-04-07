@@ -172,9 +172,9 @@
 
 {% block content %}
 <div class="breadcrumb-bar">
-  <a href="/">All Workspaces</a>
+  <a href="/qa">All Workspaces</a>
   <span class="breadcrumb-sep">&gt;</span>
-  <a href="/ws/{{ ws_name }}">{{ ws_name }}</a>
+  <a href="/qa/ws/{{ ws_name }}">{{ ws_name }}</a>
   <span class="breadcrumb-sep">&gt;</span>
   <span class="breadcrumb-current">{{ campaign_name }}</span>
 </div>
@@ -184,7 +184,7 @@
     <h1 class="page-title">{{ campaign_name }}</h1>
     <span class="status-badge status-badge--{{ campaign_status }}">{{ campaign_status|capitalize }}</span>
     <button class="scan-btn-secondary"
-            hx-post="/api/scan/ws/{{ ws_name }}/campaign/{{ campaign_id }}"
+            hx-post="/qa/api/scan/ws/{{ ws_name }}/campaign/{{ campaign_id }}"
             hx-target="#campaign-results"
             hx-swap="outerHTML">
       Scan Campaign
@@ -279,7 +279,7 @@
         {% if total_pages > 1 %}
         <div class="pagination">
           {% if page > 1 %}
-          <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page - 1 }}"
+          <a hx-get="/qa/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page - 1 }}"
              hx-target="#broken-leads-table"
              hx-swap="outerHTML">&larr;</a>
           {% else %}
@@ -290,14 +290,14 @@
             {% if p == page %}
             <span class="pg-active">{{ p }}</span>
             {% else %}
-            <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ p }}"
+            <a hx-get="/qa/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ p }}"
                hx-target="#broken-leads-table"
                hx-swap="outerHTML">{{ p }}</a>
             {% endif %}
           {% endfor %}
 
           {% if page < total_pages %}
-          <a hx-get="/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page + 1 }}"
+          <a hx-get="/qa/ws/{{ ws_name }}/campaign/{{ campaign_id }}?page={{ page + 1 }}"
              hx-target="#broken-leads-table"
              hx-swap="outerHTML">&rarr;</a>
           {% else %}

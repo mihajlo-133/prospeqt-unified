@@ -7,11 +7,11 @@
   </div>
   {% endif %}
   <div class="ws-grid"
-       {% if polling %}hx-get="/api/workspace-grid" hx-trigger="every 10s" hx-target="#workspace-grid" hx-swap="outerHTML"{% endif %}>
+       {% if polling %}hx-get="/qa/api/workspace-grid" hx-trigger="every 10s" hx-target="#workspace-grid" hx-swap="outerHTML"{% endif %}>
   {% for ws in workspaces %}
   {% set is_scanning = ws.scanning is defined and ws.scanning %}
   <div class="ws-card health-{{ ws.health }}{{ ' scanning' if is_scanning else '' }}">
-    <a href="/ws/{{ ws.name }}" class="ws-card-link" aria-label="{{ ws.name }}"></a>
+    <a href="/qa/ws/{{ ws.name }}" class="ws-card-link" aria-label="{{ ws.name }}"></a>
     <div class="ws-card-header">
       <div class="ws-card-name">
         {{ ws.name }}
@@ -22,7 +22,7 @@
       </span>
       {% else %}
       <button class="scan-btn-secondary"
-              hx-post="/api/scan/ws/{{ ws.name }}"
+              hx-post="/qa/api/scan/ws/{{ ws.name }}"
               hx-target="#workspace-grid"
               hx-swap="outerHTML"
               onclick="event.stopPropagation()">

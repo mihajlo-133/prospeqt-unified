@@ -18,7 +18,7 @@ import httpx
 from app.api.instantly import list_campaigns
 from app.services.cache import get_cache
 from app.services.qa_engine import run_campaign_qa, run_workspace_qa
-from app.services.workspace import get_api_key, list_workspaces
+from app.services.registry import get_api_key, list_workspaces
 
 logger = logging.getLogger(__name__)
 

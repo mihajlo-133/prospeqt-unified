@@ -5,9 +5,9 @@ from httpx import ASGITransport, AsyncClient
 
 async def test_health_check(mock_env):
     from app.main import create_app
-    from app.services import workspace as ws_module
+    from app.services import registry
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/health")
@@ -15,23 +15,35 @@ async def test_health_check(mock_env):
     assert response.json() == {"status": "ok"}
 
 
-async def test_dashboard_returns_html(mock_env):
+async def test_root_redirects_to_monitoring(mock_env):
     from app.main import create_app
-    from app.services import workspace as ws_module
+    from app.services import registry
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/")
+        response = await client.get("/", follow_redirects=False)
+    assert response.status_code in (302, 307)
+    assert response.headers.get("location") == "/monitoring"
+
+
+async def test_qa_overview_returns_html(mock_env):
+    from app.main import create_app
+    from app.services import registry
+
+    registry.load_from_env()
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/qa")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
 
 
 async def test_nonexistent_route_returns_404(mock_env):
     from app.main import create_app
-    from app.services import workspace as ws_module
+    from app.services import registry
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/nonexistent")
@@ -39,66 +51,65 @@ async def test_nonexistent_route_returns_404(mock_env):
 
 
 async def test_overview_page_has_workspace_grid(mock_env):
-    """GET / returns HTML containing workspace-grid element. Per VIEW-01."""
+    """GET /qa returns HTML containing workspace-grid element. Per VIEW-01."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/")
+        response = await client.get("/qa")
     assert response.status_code == 200
     assert "workspace-grid" in response.text
 
 
 async def test_overview_page_shows_empty_state(mock_env):
-    """GET / with no QA data shows empty state message. Per VIEW-01."""
+    """GET /qa with no QA data shows empty state message. Per VIEW-01."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/")
+        response = await client.get("/qa")
     assert response.status_code == 200
-    # Either workspace cards or empty state should be present
     assert "workspace-grid" in response.text
 
 
 async def test_workspace_page_returns_html(mock_env):
-    """GET /ws/{name} returns HTML with breadcrumb. Per VIEW-02, VIEW-07."""
+    """GET /qa/ws/{name} returns HTML with breadcrumb. Per VIEW-02, VIEW-07."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient")
+        response = await client.get("/qa/ws/MyPlace")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
     assert "All Workspaces" in response.text
-    assert "TestClient" in response.text
+    assert "MyPlace" in response.text
 
 
 async def test_workspace_page_has_campaign_table(mock_env):
-    """GET /ws/{name} returns HTML with campaign-table element. Per VIEW-02."""
+    """GET /qa/ws/{name} returns HTML with campaign-table element. Per VIEW-02."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient")
+        response = await client.get("/qa/ws/MyPlace")
     assert response.status_code == 200
     assert "campaign-table" in response.text
 
 
 async def test_scan_all_endpoint(mock_env):
-    """POST /api/scan/all triggers scan and redirects to overview. Per OPS-01."""
+    """POST /qa/api/scan/all triggers scan and redirects to /qa overview. Per OPS-01."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/scan/all")
+        response = await client.post("/qa/api/scan/all")
     assert response.status_code == 200
-    assert response.headers.get("hx-redirect") == "/"
+    assert response.headers.get("hx-redirect") == "/qa"
 
 
 async def test_health_class_thresholds():
@@ -126,49 +137,49 @@ async def test_freshness_class_thresholds():
 
 
 async def test_overview_has_scan_all_button(mock_env):
-    """GET / has Scan All in the topbar (from base.html). Per D-07."""
+    """GET /qa has Scan All in the topbar (from base.html). Per D-07."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/")
+        response = await client.get("/qa")
     assert "Scan All" in response.text
 
 
 async def test_mobile_meta_tag(mock_env):
     """Pages include viewport meta tag for responsive layout. Per UX-03."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/")
+        response = await client.get("/qa")
     assert 'name="viewport"' in response.text
 
 
 async def test_campaign_page_returns_html(mock_env):
-    """GET /ws/{name}/campaign/{id} returns HTML with breadcrumb. Per VIEW-03, VIEW-07."""
+    """GET /qa/ws/{name}/campaign/{id} returns HTML with breadcrumb. Per VIEW-03, VIEW-07."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/camp-001")
+        response = await client.get("/qa/ws/MyPlace/campaign/camp-001")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
     assert "All Workspaces" in response.text
-    assert "TestClient" in response.text
+    assert "MyPlace" in response.text
 
 
 async def test_campaign_page_has_results_container(mock_env):
-    """GET /ws/{name}/campaign/{id} has campaign-results element. Per VIEW-03."""
+    """GET /qa/ws/{name}/campaign/{id} has campaign-results element. Per VIEW-03."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/camp-001")
+        response = await client.get("/qa/ws/MyPlace/campaign/camp-001")
     assert response.status_code == 200
     assert "campaign-results" in response.text
 
@@ -176,11 +187,11 @@ async def test_campaign_page_has_results_container(mock_env):
 async def test_campaign_page_not_scanned_state(mock_env):
     """Campaign page shows not-scanned state when no QA data exists. Per VIEW-03."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/nonexistent")
+        response = await client.get("/qa/ws/MyPlace/campaign/nonexistent")
     assert response.status_code == 200
     assert "Not yet scanned" in response.text
 
@@ -190,10 +201,10 @@ async def test_campaign_page_with_data(mock_env):
     from datetime import datetime, timezone
     from app.main import create_app
     from app.models.qa import BrokenLeadDetail, CampaignQAResult, WorkspaceQAResult
-    from app.services import workspace as ws_module
+    from app.services import registry
     from app.services.cache import get_cache
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
 
     # Populate cache with test data
@@ -208,15 +219,15 @@ async def test_campaign_page_with_data(mock_env):
         last_checked=datetime.now(timezone.utc),
     )
     ws_result = WorkspaceQAResult(
-        workspace_name="TestClient",
+        workspace_name="MyPlace",
         campaigns=[campaign_result],
         total_broken=1,
         last_checked=datetime.now(timezone.utc),
     )
-    await get_cache().set_workspace("TestClient", ws_result)
+    await get_cache().set_workspace("MyPlace", ws_result)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/camp-test-001")
+        response = await client.get("/qa/ws/MyPlace/campaign/camp-test-001")
 
     assert response.status_code == 200
     assert "Variable Issues" in response.text
@@ -230,10 +241,10 @@ async def test_campaign_page_clean_state(mock_env):
     from datetime import datetime, timezone
     from app.main import create_app
     from app.models.qa import CampaignQAResult, WorkspaceQAResult
-    from app.services import workspace as ws_module
+    from app.services import registry
     from app.services.cache import get_cache
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
 
     campaign_result = CampaignQAResult(
@@ -246,15 +257,15 @@ async def test_campaign_page_clean_state(mock_env):
         last_checked=datetime.now(timezone.utc),
     )
     ws_result = WorkspaceQAResult(
-        workspace_name="TestClient",
+        workspace_name="MyPlace",
         campaigns=[campaign_result],
         total_broken=0,
         last_checked=datetime.now(timezone.utc),
     )
-    await get_cache().set_workspace("TestClient", ws_result)
+    await get_cache().set_workspace("MyPlace", ws_result)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/camp-clean-001")
+        response = await client.get("/qa/ws/MyPlace/campaign/camp-clean-001")
 
     assert response.status_code == 200
     assert "All clear" in response.text
@@ -265,10 +276,10 @@ async def test_breadcrumb_three_levels(mock_env):
     from datetime import datetime, timezone
     from app.main import create_app
     from app.models.qa import CampaignQAResult, WorkspaceQAResult
-    from app.services import workspace as ws_module
+    from app.services import registry
     from app.services.cache import get_cache
 
-    ws_module.load_from_env()
+    registry.load_from_env()
     app = create_app()
 
     campaign_result = CampaignQAResult(
@@ -279,30 +290,30 @@ async def test_breadcrumb_three_levels(mock_env):
         last_checked=datetime.now(timezone.utc),
     )
     ws_result = WorkspaceQAResult(
-        workspace_name="TestClient",
+        workspace_name="MyPlace",
         campaigns=[campaign_result],
         last_checked=datetime.now(timezone.utc),
     )
-    await get_cache().set_workspace("TestClient", ws_result)
+    await get_cache().set_workspace("MyPlace", ws_result)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.get("/ws/TestClient/campaign/camp-bc-001")
+        response = await client.get("/qa/ws/MyPlace/campaign/camp-bc-001")
 
     text = response.text
     # All three breadcrumb segments present
     assert "All Workspaces" in text
-    assert 'href="/"' in text
-    assert 'href="/ws/TestClient"' in text
+    assert 'href="/qa"' in text
+    assert 'href="/qa/ws/MyPlace"' in text
     assert "Breadcrumb Campaign" in text
 
 
 async def test_scan_campaign_endpoint(mock_env):
-    """POST /api/scan/ws/{name}/campaign/{id} returns HTML. Per OPS-03."""
+    """POST /qa/api/scan/ws/{name}/campaign/{id} returns HTML. Per OPS-03."""
     from app.main import create_app
-    from app.services import workspace as ws_module
-    ws_module.load_from_env()
+    from app.services import registry
+    registry.load_from_env()
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/scan/ws/TestClient/campaign/camp-001")
+        response = await client.post("/qa/api/scan/ws/MyPlace/campaign/camp-001")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")

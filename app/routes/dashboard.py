@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.services.cache import get_cache
 from app.services.poller import get_scanning_workspace_names, trigger_qa_all, trigger_qa_campaign, trigger_qa_workspace
-from app.services.workspace import list_workspaces
+from app.services.registry import list_workspaces
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
@@ -77,7 +77,7 @@ def total_leads_for_workspace(ws) -> int:
 # ---------------------------------------------------------------------------
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("", response_class=HTMLResponse)
 async def dashboard(request: Request):
     """Overview page: all workspaces with health status. Per VIEW-01, D-04/D-05/D-06."""
     data = await get_cache().get_all()
@@ -128,6 +128,7 @@ async def dashboard(request: Request):
     total_broken = sum(w["broken"] for w in ws_display)
 
     return templates.TemplateResponse(request, "dashboard.html", {
+        "active_tab": "qa",
         "workspaces": ws_display,
         "ws_count": len(ws_display),
         "red_count": red_count,
@@ -161,6 +162,7 @@ async def workspace_detail(request: Request, ws_name: str):
     result = cached_map.get(ws_name)
     if result is None:
         return templates.TemplateResponse(request, "workspace.html", {
+            "active_tab": "qa",
             "ws_name": ws_name,
             "campaigns": [],
             "ws_broken": 0,
@@ -195,6 +197,7 @@ async def workspace_detail(request: Request, ws_name: str):
             "freshness_txt": freshness_text(c.last_checked),
         })
     return templates.TemplateResponse(request, "workspace.html", {
+        "active_tab": "qa",
         "ws_name": ws_name,
         "campaigns": campaigns_display,
         "ws_broken": result.total_broken,
@@ -206,11 +209,6 @@ async def workspace_detail(request: Request, ws_name: str):
         "ws_scanning": current_ws_scanning,
         "polling": current_ws_scanning,
     })
-
-
-@router.get("/health")
-async def health():
-    return {"status": "ok"}
 
 
 # ---------------------------------------------------------------------------
@@ -290,7 +288,7 @@ async def scan_all(request: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(trigger_qa_all)
     from fastapi.responses import Response
     response = Response(status_code=200)
-    response.headers["HX-Redirect"] = "/"
+    response.headers["HX-Redirect"] = "/qa"
     return response
 
 
@@ -327,6 +325,7 @@ async def campaign_detail(request: Request, ws_name: str, campaign_id: str, page
     if campaign is None:
         # Campaign not found in QA results — show not-scanned state
         return templates.TemplateResponse(request, "campaign.html", {
+            "active_tab": "qa",
             "ws_name": ws_name,
             "campaign_id": campaign_id,
             "campaign_name": campaign_id,
@@ -383,6 +382,7 @@ async def campaign_detail(request: Request, ws_name: str, campaign_id: str, page
         })
 
     return templates.TemplateResponse(request, "campaign.html", {
+        "active_tab": "qa",
         "ws_name": ws_name,
         "campaign_id": campaign_id,
         "campaign_name": campaign.campaign_name,

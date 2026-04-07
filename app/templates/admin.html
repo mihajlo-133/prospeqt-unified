@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Workspace Admin — Email QA{% endblock %}
+{% block title %}Admin — Prospeqt{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -15,6 +15,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 24px;
+    gap: 12px;
   }
 
   .admin-title {
@@ -23,6 +24,36 @@
     color: var(--tx1);
     font-family: 'Inter', sans-serif;
     letter-spacing: -.02em;
+  }
+
+  .admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    min-height: 36px;
+    border-radius: var(--radius);
+    background: var(--bg-el);
+    color: var(--tx1);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--bd);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--transition), border-color var(--transition);
+    box-shadow: var(--sh);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-hov);
+    border-color: var(--bd-s);
   }
 
   .signout-link {
@@ -39,7 +70,7 @@
   .section-card {
     background: var(--bg-el);
     border: 1px solid var(--bd);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 24px;
     margin-bottom: 24px;
     box-shadow: var(--sh);
@@ -55,11 +86,22 @@
     font-family: 'Inter', sans-serif;
   }
 
-  /* Add workspace form */
+  /* ── Add workspace form ── */
   .add-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+    min-width: 180px;
   }
 
   .form-group {
@@ -78,7 +120,7 @@
     width: 100%;
     background: var(--bg);
     border: 1px solid var(--bd);
-    border-radius: 8px;
+    border-radius: var(--radius);
     padding: 8px 12px;
     font-size: 14px;
     font-family: inherit;
@@ -91,10 +133,60 @@
     border-color: var(--blue);
   }
 
+  .form-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--tx1);
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .form-select:focus {
+    border-color: var(--blue);
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--blue);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checkbox-label {
+    font-size: 13px;
+    color: var(--tx2);
+    cursor: pointer;
+  }
+
+  .checkbox-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
   .btn-add {
     padding: 0 24px;
     min-height: 44px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--blue);
     color: #fff;
     font-size: 13px;
@@ -117,7 +209,7 @@
     cursor: not-allowed;
   }
 
-  /* Workspace table */
+  /* ── Workspace table ── */
   .ws-table {
     width: 100%;
     border-collapse: collapse;
@@ -149,10 +241,6 @@
     border-bottom: none;
   }
 
-  .ws-table tbody tr:nth-child(even) {
-    background: transparent;
-  }
-
   .ws-table tbody tr:hover td {
     background: var(--bg-hov);
     transition: background var(--transition);
@@ -166,32 +254,21 @@
     letter-spacing: -.01em;
   }
 
-  .status-connected {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--tx2);
-  }
-
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    flex-shrink: 0;
-  }
-
-  .status-error {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 6px;
-    padding: 2px 10px;
+  .ws-key-preview {
     font-size: 12px;
-    font-weight: 500;
-    color: var(--red-text);
+    color: var(--tx3);
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .flag-yes {
+    color: var(--green-text);
+    font-size: 15px;
+  }
+
+  .flag-no {
+    color: var(--tx3);
+    font-size: 15px;
   }
 
   .remove-action {
@@ -222,67 +299,454 @@
   }
 
   .error-banner {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 8px;
+    background: var(--red-bg-md);
+    border: 1px solid var(--red-bd);
+    border-radius: var(--radius);
     padding: 10px 14px;
     font-size: 13px;
     color: var(--red-text);
     margin-bottom: 16px;
+  }
+
+  /* ── Thresholds table ── */
+  .thresh-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .thresh-table th {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--tx3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--bd);
+    text-align: left;
+    background: var(--bg-alt);
+  }
+
+  .thresh-table th.col-input {
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .thresh-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--bd);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  .thresh-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .thresh-table td.row-label {
+    font-weight: 500;
+    color: var(--tx1);
+    white-space: nowrap;
+  }
+
+  .thresh-table td.row-unit {
+    font-size: 11px;
+    color: var(--tx3);
+    white-space: nowrap;
+  }
+
+  .thresh-table td.input-cell {
+    text-align: center;
+  }
+
+  .thresh-input {
+    width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--tx1);
+    outline: none;
+    text-align: right;
+    transition: border-color var(--transition);
+  }
+
+  .thresh-input:focus {
+    border-color: var(--blue);
+  }
+
+  .thresh-input.input-error {
+    border-color: var(--red);
+  }
+
+  .field-error {
+    display: block;
+    font-size: 11px;
+    color: var(--red-text);
+    margin-top: 3px;
+    text-align: right;
+  }
+
+  .cell-empty {
+    color: var(--tx3);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .save-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn-save {
+    padding: 0 20px;
+    min-height: 36px;
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    box-shadow: 0 1px 3px rgba(37,99,235,.3);
+  }
+
+  .btn-save:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .btn-save-sm {
+    padding: 0 14px;
+    min-height: 30px;
+    border-radius: var(--radius-sm);
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+
+  .btn-save-sm:hover {
+    opacity: 0.88;
+  }
+
+  /* ── KPI table ── */
+  .kpi-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .kpi-table th {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--tx3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--bd);
+    text-align: left;
+    background: var(--bg-alt);
+  }
+
+  .kpi-table th.col-input {
+    text-align: right;
+    min-width: 110px;
+  }
+
+  .kpi-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--bd);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  .kpi-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .kpi-table td.kpi-client-name {
+    font-weight: 500;
+    color: var(--tx1);
+    white-space: nowrap;
+  }
+
+  .kpi-table td.kpi-input-cell {
+    text-align: right;
+  }
+
+  .kpi-input {
+    width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--tx1);
+    outline: none;
+    text-align: right;
+    transition: border-color var(--transition);
+  }
+
+  .kpi-input:focus {
+    border-color: var(--blue);
+  }
+
+  .kpi-table td.kpi-action-cell {
+    text-align: right;
+    padding-right: 8px;
+  }
+
+  /* ── Collapsible per-client overrides ── */
+  .override-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .override-item {
+    border: 1px solid var(--bd);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .override-item summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--tx1);
+    background: var(--bg-alt);
+    list-style: none;
+    transition: background var(--transition);
+  }
+
+  .override-item summary:hover {
+    background: var(--bg-hov);
+  }
+
+  .override-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .override-chevron {
+    margin-left: auto;
+    color: var(--tx3);
+    transition: transform var(--transition);
+    flex-shrink: 0;
+  }
+
+  .override-item[open] .override-chevron {
+    transform: rotate(90deg);
+  }
+
+  .badge-override {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: var(--radius-xs);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    background: rgba(245,158,11,.08);
+    color: var(--amber-text);
+    border: 1px solid rgba(245,158,11,.2);
+    text-transform: uppercase;
+  }
+
+  .override-body {
+    padding: 16px;
+    background: var(--bg-el);
+  }
+
+  .override-note {
+    font-size: 12px;
+    color: var(--tx3);
+    margin-bottom: 12px;
+  }
+
+  .override-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+
+  .override-table th {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--tx3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--bd);
+    text-align: left;
+    background: var(--bg-alt);
+  }
+
+  .override-table th.col-input {
+    text-align: center;
+    min-width: 140px;
+  }
+
+  .override-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--bd);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  .override-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .override-table td.row-label {
+    font-weight: 500;
+    color: var(--tx1);
+    white-space: nowrap;
+  }
+
+  .override-table td.row-unit {
+    font-size: 11px;
+    color: var(--tx3);
+  }
+
+  .override-table td.input-cell {
+    text-align: center;
+  }
+
+  .override-input {
+    width: 130px;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--tx1);
+    outline: none;
+    text-align: right;
+    transition: border-color var(--transition);
+  }
+
+  .override-input:focus {
+    border-color: var(--blue);
+  }
+
+  .override-save-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
   }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="admin-shell">
+
+  <!-- ── Topbar ── -->
   <div class="admin-topbar">
-    <h1 class="admin-title">Workspace Admin</h1>
-    <a href="/admin/logout" class="signout-link">Sign out</a>
+    <h1 class="admin-title">Admin</h1>
+    <div class="admin-topbar-actions">
+      <a href="/admin/config/export" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export Config
+      </a>
+      <a href="/admin/logout" class="signout-link">Sign out</a>
+    </div>
   </div>
 
-  <!-- Add Workspace -->
+  {% if error %}
+  <div class="error-banner">{{ error }}</div>
+  {% endif %}
+  {% if errors %}
+  <div class="error-banner">{{ errors | join(', ') }}</div>
+  {% endif %}
+
+  <!-- ═══════════════════════════════════════════════════════════
+       T1 — Add Workspace
+  ════════════════════════════════════════════════════════════ -->
   <div class="section-card">
     <h2 class="section-title">Add Workspace</h2>
 
-    {% if error %}
-    <div class="error-banner">{{ error }}</div>
-    {% endif %}
-
     <form class="add-form" method="POST" action="/admin/workspaces">
-      <div class="form-group">
-        <label class="form-label" for="workspace_name">Workspace Name</label>
-        <input
-          class="form-input"
-          type="text"
-          id="workspace_name"
-          name="workspace_name"
-          placeholder="e.g. SwishFunding"
-          autocomplete="off"
-        >
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="workspace_name">Workspace Name</label>
+          <input
+            class="form-input"
+            type="text"
+            id="workspace_name"
+            name="workspace_name"
+            placeholder="e.g. SwishFunding"
+            autocomplete="off"
+          >
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="api_key">API Key</label>
+          <input
+            class="form-input"
+            type="text"
+            id="api_key"
+            name="api_key"
+            placeholder="Paste API key"
+            autocomplete="off"
+          >
+        </div>
+        <div class="form-group" style="flex: 0 0 160px;">
+          <label class="form-label" for="platform">Platform</label>
+          <select class="form-select" id="platform" name="platform">
+            <option value="instantly">Instantly</option>
+            <option value="emailbison">EmailBison</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="api_key">API Key</label>
-        <input
-          class="form-input"
-          type="text"
-          id="api_key"
-          name="api_key"
-          placeholder="Paste API key"
-          autocomplete="off"
-        >
+      <div class="checkbox-group">
+        <label class="checkbox-row">
+          <input type="checkbox" name="monitoring_enabled" value="true" checked>
+          <span class="checkbox-label">Monitoring enabled</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" name="qa_enabled" value="true" checked>
+          <span class="checkbox-label">QA enabled</span>
+        </label>
       </div>
       <button class="btn-add" type="submit" id="add-btn" disabled>Add Workspace</button>
     </form>
   </div>
 
-  <!-- Workspaces List -->
+  <!-- ═══════════════════════════════════════════════════════════
+       T1 — Workspace Table
+  ════════════════════════════════════════════════════════════ -->
   <div class="section-card">
     <h2 class="section-title">Workspaces</h2>
     <table class="ws-table">
       <thead>
         <tr>
           <th>Workspace</th>
-          <th>Status</th>
+          <th>Platform</th>
+          <th>API Key</th>
+          <th style="text-align:center">Monitoring</th>
+          <th style="text-align:center">QA</th>
           <th></th>
         </tr>
       </thead>
@@ -292,10 +756,28 @@
           <tr>
             <td class="ws-name">{{ ws.name }}</td>
             <td>
-              <span class="status-connected">
-                <span class="status-dot"></span>
-                Connected
-              </span>
+              {% if ws.platform == 'emailbison' %}
+                <span class="pill pill-m">EmailBison</span>
+              {% else %}
+                <span class="pill pill-blue">Instantly</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="ws-key-preview">{{ ws.key_preview if ws.key_preview else '—' }}</span>
+            </td>
+            <td style="text-align:center">
+              {% if ws.monitoring_enabled %}
+                <span class="flag-yes" title="Monitoring enabled">✓</span>
+              {% else %}
+                <span class="flag-no" title="Monitoring disabled">—</span>
+              {% endif %}
+            </td>
+            <td style="text-align:center">
+              {% if ws.qa_enabled %}
+                <span class="flag-yes" title="QA enabled">✓</span>
+              {% else %}
+                <span class="flag-no" title="QA disabled">—</span>
+              {% endif %}
             </td>
             <td class="remove-action">
               <form method="POST" action="/admin/workspaces/{{ ws.name }}/delete" style="display:inline;">
@@ -310,30 +792,380 @@
           {% endfor %}
         {% else %}
           <tr>
-            <td colspan="3" class="empty-state">No workspaces added yet. Use the form above to add your first workspace.</td>
+            <td colspan="6" class="empty-state">No workspaces added yet. Use the form above to add your first workspace.</td>
           </tr>
         {% endif %}
       </tbody>
     </table>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       T2 — Global Alert Thresholds
+  ════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <h2 class="section-title">Global Alert Thresholds</h2>
+    <form id="thresholds-form" method="POST" action="/admin/thresholds">
+      <table class="thresh-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Unit</th>
+            <th class="col-input">Warn ⚠</th>
+            <th class="col-input">Critical ✕</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-label">Reply Rate</td>
+            <td class="row-unit">below X%</td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.1" min="0" name="reply_rate_warn"
+                     id="f-reply_rate_warn"
+                     value="{{ config.global_thresholds.reply_rate_warn if config and config.global_thresholds else 1.0 }}">
+              <span class="field-error" id="err-reply_rate_warn"></span>
+            </td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.1" min="0" name="reply_rate_red"
+                     id="f-reply_rate_red"
+                     value="{{ config.global_thresholds.reply_rate_red if config and config.global_thresholds else 0.5 }}">
+              <span class="field-error" id="err-reply_rate_red"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="row-label">Sent Volume</td>
+            <td class="row-unit">fraction of KPI</td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.05" min="0" max="1" name="sent_pct_warn"
+                     id="f-sent_pct_warn"
+                     value="{{ config.global_thresholds.sent_pct_warn if config and config.global_thresholds else 0.8 }}">
+              <span class="field-error" id="err-sent_pct_warn"></span>
+            </td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.05" min="0" max="1" name="sent_pct_red"
+                     id="f-sent_pct_red"
+                     value="{{ config.global_thresholds.sent_pct_red if config and config.global_thresholds else 0.5 }}">
+              <span class="field-error" id="err-sent_pct_red"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="row-label">Bounce Rate</td>
+            <td class="row-unit">above X%</td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.1" min="0" name="bounce_rate_warn"
+                     id="f-bounce_rate_warn"
+                     value="{{ config.global_thresholds.bounce_rate_warn if config and config.global_thresholds else 3.0 }}">
+              <span class="field-error" id="err-bounce_rate_warn"></span>
+            </td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.1" min="0" name="bounce_rate_red"
+                     id="f-bounce_rate_red"
+                     value="{{ config.global_thresholds.bounce_rate_red if config and config.global_thresholds else 5.0 }}">
+              <span class="field-error" id="err-bounce_rate_red"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="row-label">Lead Pool</td>
+            <td class="row-unit">days remaining</td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="1" min="0" name="pool_days_warn"
+                     id="f-pool_days_warn"
+                     value="{{ config.global_thresholds.pool_days_warn if config and config.global_thresholds else 7 }}">
+              <span class="field-error" id="err-pool_days_warn"></span>
+            </td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="1" min="0" name="pool_days_red"
+                     id="f-pool_days_red"
+                     value="{{ config.global_thresholds.pool_days_red if config and config.global_thresholds else 3 }}">
+              <span class="field-error" id="err-pool_days_red"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="row-label">Opps</td>
+            <td class="row-unit">fraction of 7-day avg</td>
+            <td class="input-cell">
+              <input class="thresh-input" type="number" step="0.05" min="0" max="1" name="opps_pct_warn"
+                     id="f-opps_pct_warn"
+                     value="{{ config.global_thresholds.opps_pct_warn if config and config.global_thresholds else 0.5 }}">
+              <span class="field-error" id="err-opps_pct_warn"></span>
+            </td>
+            <td class="cell-empty">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="save-row">
+        <button class="btn-save" type="submit">Save Thresholds</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       T3 — Per-Client KPI Targets
+  ════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <h2 class="section-title">Per-Client KPI Targets</h2>
+    {% if monitoring_clients %}
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th class="col-input">Sent / Day</th>
+          <th class="col-input">Pool Target</th>
+          <th class="col-input">Opps / Day</th>
+          <th class="col-input">Reply Rate %</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name in monitoring_clients %}
+        {% set c = config.clients.get(name, {}) if config and config.clients else {} %}
+        <tr>
+          <form method="POST" action="/admin/clients/{{ name }}/kpi" style="display:contents;">
+          <td class="kpi-client-name">{{ name }}</td>
+          <td class="kpi-input-cell">
+            <input class="kpi-input" type="number" step="100" min="0" name="sent"
+                   value="{{ c.get('sent', '') }}">
+          </td>
+          <td class="kpi-input-cell">
+            <input class="kpi-input" type="number" step="100" min="0" name="not_contacted"
+                   value="{{ c.get('not_contacted', '') }}">
+          </td>
+          <td class="kpi-input-cell">
+            <input class="kpi-input" type="number" step="0.5" min="0" name="opps_per_day"
+                   value="{{ c.get('opps_per_day', '') }}">
+          </td>
+          <td class="kpi-input-cell">
+            <input class="kpi-input" type="number" step="0.1" min="0" name="reply_rate"
+                   value="{{ c.get('reply_rate', '') }}">
+          </td>
+          <td class="kpi-action-cell">
+            <button class="btn-save-sm" type="submit">Save</button>
+          </td>
+          </form>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No monitoring-enabled clients configured.</p>
+    {% endif %}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       T4 — Per-Client Threshold Overrides
+  ════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <h2 class="section-title">Per-Client Threshold Overrides</h2>
+    {% if monitoring_clients %}
+    <div class="override-list">
+      {% for name in monitoring_clients %}
+      {% set client_cfg = config.clients.get(name, {}) if config and config.clients else {} %}
+      {% set has_overrides = client_cfg.get('thresholds') %}
+      {% set gt = config.global_thresholds if config and config.global_thresholds else {} %}
+      <details class="override-item">
+        <summary>
+          {{ name }}
+          {% if has_overrides %}
+          <span class="badge-override">Custom</span>
+          {% endif %}
+          <svg class="override-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </summary>
+        <div class="override-body">
+          <p class="override-note">Leave fields empty to inherit the global threshold value.</p>
+          <form method="POST" action="/admin/clients/{{ name }}/thresholds">
+            {% set ov = client_cfg.get('thresholds', {}) %}
+            <table class="override-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Unit</th>
+                  <th class="col-input">Warn ⚠</th>
+                  <th class="col-input">Critical ✕</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="row-label">Reply Rate</td>
+                  <td class="row-unit">below X%</td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.1" min="0"
+                           name="reply_rate_warn"
+                           value="{{ ov.get('reply_rate_warn', '') }}"
+                           placeholder="(global: {{ gt.get('reply_rate_warn', 1.0) }})">
+                  </td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.1" min="0"
+                           name="reply_rate_red"
+                           value="{{ ov.get('reply_rate_red', '') }}"
+                           placeholder="(global: {{ gt.get('reply_rate_red', 0.5) }})">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="row-label">Sent Volume</td>
+                  <td class="row-unit">fraction of KPI</td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.05" min="0" max="1"
+                           name="sent_pct_warn"
+                           value="{{ ov.get('sent_pct_warn', '') }}"
+                           placeholder="(global: {{ gt.get('sent_pct_warn', 0.8) }})">
+                  </td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.05" min="0" max="1"
+                           name="sent_pct_red"
+                           value="{{ ov.get('sent_pct_red', '') }}"
+                           placeholder="(global: {{ gt.get('sent_pct_red', 0.5) }})">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="row-label">Bounce Rate</td>
+                  <td class="row-unit">above X%</td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.1" min="0"
+                           name="bounce_rate_warn"
+                           value="{{ ov.get('bounce_rate_warn', '') }}"
+                           placeholder="(global: {{ gt.get('bounce_rate_warn', 3.0) }})">
+                  </td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.1" min="0"
+                           name="bounce_rate_red"
+                           value="{{ ov.get('bounce_rate_red', '') }}"
+                           placeholder="(global: {{ gt.get('bounce_rate_red', 5.0) }})">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="row-label">Lead Pool</td>
+                  <td class="row-unit">days remaining</td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="1" min="0"
+                           name="pool_days_warn"
+                           value="{{ ov.get('pool_days_warn', '') }}"
+                           placeholder="(global: {{ gt.get('pool_days_warn', 7) }})">
+                  </td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="1" min="0"
+                           name="pool_days_red"
+                           value="{{ ov.get('pool_days_red', '') }}"
+                           placeholder="(global: {{ gt.get('pool_days_red', 3) }})">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="row-label">Opps</td>
+                  <td class="row-unit">fraction of 7-day avg</td>
+                  <td class="input-cell">
+                    <input class="override-input" type="number" step="0.05" min="0" max="1"
+                           name="opps_pct_warn"
+                           value="{{ ov.get('opps_pct_warn', '') }}"
+                           placeholder="(global: {{ gt.get('opps_pct_warn', 0.5) }})">
+                  </td>
+                  <td class="cell-empty">—</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="override-save-row">
+              <button class="btn-save-sm" type="submit">Save Overrides</button>
+            </div>
+          </form>
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">No monitoring-enabled clients configured.</p>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  (function() {
-    var nameInput = document.getElementById('workspace_name');
-    var keyInput = document.getElementById('api_key');
-    var addBtn = document.getElementById('add-btn');
+(function() {
+  // ── T1: Enable add button when name + key filled ──
+  var nameInput = document.getElementById('workspace_name');
+  var keyInput  = document.getElementById('api_key');
+  var addBtn    = document.getElementById('add-btn');
 
-    function updateBtn() {
-      var hasName = nameInput.value.trim().length > 0;
-      var hasKey = keyInput.value.trim().length > 0;
-      addBtn.disabled = !(hasName && hasKey);
+  function updateAddBtn() {
+    var hasName = nameInput.value.trim().length > 0;
+    var hasKey  = keyInput.value.trim().length > 0;
+    addBtn.disabled = !(hasName && hasKey);
+  }
+
+  nameInput.addEventListener('input', updateAddBtn);
+  keyInput.addEventListener('input', updateAddBtn);
+
+  // ── T2: Client-side threshold validation ──
+  var threshForm = document.getElementById('thresholds-form');
+
+  function getVal(id) {
+    var el = document.getElementById('f-' + id);
+    return el ? parseFloat(el.value) : NaN;
+  }
+
+  function setErr(id, msg) {
+    var el = document.getElementById('err-' + id);
+    var input = document.getElementById('f-' + id);
+    if (el) el.textContent = msg || '';
+    if (input) {
+      if (msg) {
+        input.classList.add('input-error');
+      } else {
+        input.classList.remove('input-error');
+      }
+    }
+  }
+
+  function clearAllErrors() {
+    ['reply_rate_warn','reply_rate_red','sent_pct_warn','sent_pct_red',
+     'bounce_rate_warn','bounce_rate_red','pool_days_warn','pool_days_red'].forEach(function(id) {
+      setErr(id, '');
+    });
+  }
+
+  function validateThresholds() {
+    clearAllErrors();
+    var valid = true;
+
+    var rrw = getVal('reply_rate_warn');
+    var rrr = getVal('reply_rate_red');
+    if (!isNaN(rrw) && !isNaN(rrr) && rrw <= rrr) {
+      setErr('reply_rate_warn', 'Warn must be > critical (' + rrr + ')');
+      valid = false;
     }
 
-    nameInput.addEventListener('input', updateBtn);
-    keyInput.addEventListener('input', updateBtn);
-  })();
+    var spw = getVal('sent_pct_warn');
+    var spr = getVal('sent_pct_red');
+    if (!isNaN(spw) && !isNaN(spr) && spw <= spr) {
+      setErr('sent_pct_warn', 'Warn must be > critical (' + spr + ')');
+      valid = false;
+    }
+
+    var brw = getVal('bounce_rate_warn');
+    var brr = getVal('bounce_rate_red');
+    if (!isNaN(brw) && !isNaN(brr) && brw >= brr) {
+      setErr('bounce_rate_warn', 'Warn must be < critical (' + brr + ')');
+      valid = false;
+    }
+
+    var pdw = getVal('pool_days_warn');
+    var pdr = getVal('pool_days_red');
+    if (!isNaN(pdw) && !isNaN(pdr) && pdw <= pdr) {
+      setErr('pool_days_warn', 'Warn must be > critical (' + pdr + ')');
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  if (threshForm) {
+    threshForm.addEventListener('input', validateThresholds);
+    threshForm.addEventListener('submit', function(e) {
+      if (!validateThresholds()) {
+        e.preventDefault();
+      }
+    });
+  }
+})();
 </script>
 {% endblock %}
