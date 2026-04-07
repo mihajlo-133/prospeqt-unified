@@ -169,8 +169,8 @@
     transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
     position: relative;
   }
-  a.mon-card { cursor: pointer; }
-  a.mon-card:hover {
+  .mon-card[role="link"] { cursor: pointer; }
+  .mon-card[role="link"]:hover {
     transform: translateY(-1px);
     background: var(--bg-hov);
   }
@@ -180,10 +180,10 @@
   .mon-card--health-amber  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-md); background: var(--amber-card-bg); }
   .mon-card--health-green  { box-shadow: inset 6px 0 0 var(--green), var(--sh-md); background: var(--green-card-bg); }
   .mon-card--health-gray   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-md); background: var(--bg-el); }
-  a.mon-card--health-red:hover    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-lg); }
-  a.mon-card--health-amber:hover  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-lg); }
-  a.mon-card--health-green:hover  { box-shadow: inset 6px 0 0 var(--green), var(--sh-lg); }
-  a.mon-card--health-gray:hover   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-lg); }
+  .mon-card[role="link"].mon-card--health-red:hover    { box-shadow: inset 6px 0 0 var(--red),   var(--sh-lg); }
+  .mon-card[role="link"].mon-card--health-amber:hover  { box-shadow: inset 6px 0 0 var(--amber), var(--sh-lg); }
+  .mon-card[role="link"].mon-card--health-green:hover  { box-shadow: inset 6px 0 0 var(--green), var(--sh-lg); }
+  .mon-card[role="link"].mon-card--health-gray:hover   { box-shadow: inset 6px 0 0 var(--tx3),   var(--sh-lg); }
 
   /* Zones */
   .mon-card-zone-tl {

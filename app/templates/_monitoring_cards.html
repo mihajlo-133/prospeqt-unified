@@ -40,14 +40,16 @@
 
     {# ----- Live state ----- #}
     {% else %}
-    <a href="/monitoring/{{ c.slug }}"
-       hx-get="/api/monitoring/drilldown/{{ c.slug }}"
-       hx-target="#card-drilldown-target"
-       hx-swap="innerHTML"
-       hx-push-url="false"
-       class="mon-card mon-card--health-{{ c.health }}"
-       data-client="{{ c.name }}"
-       data-status="{{ c.status }}">
+    <div role="link"
+         tabindex="0"
+         hx-get="/api/monitoring/drilldown/{{ c.slug }}"
+         hx-target="#card-drilldown-target"
+         hx-swap="innerHTML"
+         hx-push-url="false"
+         class="mon-card mon-card--health-{{ c.health }}"
+         data-client="{{ c.name }}"
+         data-status="{{ c.status }}"
+         onclick="window.location='/monitoring/{{ c.slug }}'">
 
       {# ── Zone 1 (top row) ─────────────────────────────────────────────── #}
 
@@ -112,7 +114,7 @@
         </a>
       </div>
       {% endif %}
-    </a>
+    </div>
     {% endif %}
 
   {% endfor %}
