@@ -3,6 +3,46 @@
 
 {% block extra_styles %}
 <style>
+  /* ============================================================
+     Countdown bar (T4 / GOAL 2.5)
+     2px bar directly below topbar, Monitoring tab only.
+     Must sit OUTSIDE all HTMX swap targets so HTMX partial
+     swaps on cards-partial / table-partial never reset it.
+     ============================================================ */
+  .mon-countdown {
+    position: sticky;
+    top: 64px;        /* flush under the 64px topbar */
+    left: 0;
+    z-index: 99;      /* just below topbar (z-index: 100) */
+    height: 2px;
+    width: 100%;
+    background: transparent;
+    overflow: hidden;
+    /* No border-radius — it's a full-width progress bar */
+  }
+  .mon-countdown-bar {
+    height: 100%;
+    width: 100%;
+    background: rgba(37, 99, 235, 0.4);   /* --blue at 40% opacity */
+    transform-origin: left center;
+    animation: mon-countdown 300s linear forwards;
+  }
+  @keyframes mon-countdown {
+    from { width: 100%; }
+    to   { width: 0%; }
+  }
+
+  /* Restart animation by toggling a class */
+  .mon-countdown-bar.reset {
+    animation: none;
+    width: 100%;
+  }
+
+  /* Mobile: topbar wraps to ~96px — adjust sticky offset */
+  @media (max-width: 639px) {
+    .mon-countdown { top: 96px; }
+  }
+
   /* Summary chip bar — horizontal scroll on mobile */
   .summary-bar {
     padding: 20px 0 16px;
@@ -465,6 +505,12 @@
 {% endblock %}
 
 {% block content %}
+{# Countdown bar: OUTSIDE all HTMX swap targets so partial swaps don't reset it.
+   Sits between topbar and page content. Resets on manual refresh + auto-refresh. #}
+<div class="mon-countdown" id="mon-countdown" aria-hidden="true">
+  <div class="mon-countdown-bar" id="mon-countdown-bar"></div>
+</div>
+
 <div class="page-shell">
   {# Summary chips (3.1.x). Skeleton state when every client is still loading. #}
   <div class="summary-bar" aria-label="Summary">
@@ -538,4 +584,37 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var bar = document.getElementById('mon-countdown-bar');
+    if (!bar) return;
+
+    function restartCountdown() {
+      /* Force reflow to restart CSS animation */
+      bar.classList.add('reset');
+      /* Reading offsetWidth forces the browser to flush styles before removing class */
+      void bar.offsetWidth;
+      bar.classList.remove('reset');
+    }
+
+    /* Reset on manual refresh button click (hx-post="/api/monitoring/refresh") */
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+      var path = evt.detail.pathInfo && evt.detail.pathInfo.requestPath || '';
+      if (path.indexOf('/api/monitoring/refresh') !== -1) {
+        restartCountdown();
+      }
+    });
+
+    /* Reset on auto-refresh completion (every 300s HTMX trigger on cards-partial or table-partial) */
+    document.body.addEventListener('htmx:afterSwap', function (evt) {
+      var id = evt.target && evt.target.id || '';
+      if (id === 'cards-partial' || id === 'table-partial') {
+        restartCountdown();
+      }
+    });
+  })();
+</script>
 {% endblock %}
